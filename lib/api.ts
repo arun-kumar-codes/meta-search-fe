@@ -39,6 +39,8 @@ export interface SearchParams {
   brand?: string
   model?: string
   year?: string
+  page?: string
+  limit?: string
 }
 
 export interface CarListing {
@@ -69,12 +71,25 @@ export interface SearchResponse {
   listings: CarListing[]
   message?: string
   success?: boolean
+  total?: number
+  page?: number
+  limit?: number
+  totalPages?: number
 }
 
 export const searchAPI = {
   search: async (params: SearchParams): Promise<SearchResponse> => {
     try {
       const response = await api.get(endpoints.search, { params })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+  
+  getCarById: async (id: string): Promise<CarListing> => {
+    try {
+      const response = await api.get(endpoints.carDetails(id))
       return response.data
     } catch (error) {
       throw error

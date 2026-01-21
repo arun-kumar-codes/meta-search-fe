@@ -77,22 +77,22 @@ export default function BottomCards() {
         {/* FAQ Section */}
         <div className="mt-16">
           <h2 className="text-3xl md:text-3xl font-[600] text-gray-900">
-            Booking cars with Cars4Less
+            Booking cars with Used Cars Metasearch
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             {/* Left Column */}
             <div className=" pr-0 md:pr-8">
-              <FAQItem question="How does Cars4Less work?" />
-              <FAQItem question="How can I find the cheapest flight using Cars4Less?" />
+              <FAQItem question="How does Used Cars Metasearch work?" />
+              <FAQItem question="How can I find the cheapest flight using Used Cars Metasearch?" />
               <FAQItem question="Where should I book a flight to right now?" />
-              <FAQItem question="Do I book my flight with Cars4Less?" />
+              <FAQItem question="Do I book my flight with Used Cars Metasearch?" />
               <FAQItem question="What happens after I have booked my flight?" />
             </div>
 
             {/* Right Column */}
             <div className="pl-0 md:pl-8 mt-8 md:mt-0">
-              <FAQItem question="Does Cars4Less do hotels too?" />
+              <FAQItem question="Does Used Cars Metasearch do hotels too?" />
               <FAQItem question="What about car hire?" />
               <FAQItem question="What's a Price Alert?" />
               <FAQItem question="Can I book a flexible flight ticket?" />

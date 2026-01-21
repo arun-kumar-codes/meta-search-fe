@@ -1,78 +1,168 @@
 "use client"
 
-import { ChevronDown } from "lucide-react"
+import { Facebook, Twitter, Instagram, Youtube, Linkedin, Apple, Play, Link } from "lucide-react"
 
 export default function Footer() {
   return (
-    <footer className="bg-[#05203C] text-white">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
-        {/* Top Selector */}
-        <div className="mb-12">
-          <button className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-            India · English (UK) · ₹ INR
-          </button>
+    <footer className="relative pt-4 pb-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
+        {/* Logo and Tagline */}
+        <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="flex items-baseline">
+              <span className="text-xl font-bold text-orange-500">CAR</span>
+            </div>
+            <div className="bg-orange-500 text-white text-xs font-bold px-1.5 py-0.5 rounded">
+              METASEARCH
+            </div>
+          </div>
+          <div className="h-6 w-px bg-gray-300"></div>
+          <p className="text-gray-600 text-sm">Better searches, better deals</p>
         </div>
 
-        {/* Navigation Links */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-12">
-          {/* Column 1 */}
-          <div className="space-y-4">
-            <a href="#" className="block hover:text-blue-300 transition-colors">
-              Help
-            </a>
-            <a href="#" className="block hover:text-blue-300 transition-colors">
-              Privacy Settings
-            </a>
-            <a href="#" className="block hover:text-blue-300 transition-colors">
-              Log in
-            </a>
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          {/* COMPANY Column */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">Company</h3>
+            <ul className="space-y-3">
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Investors
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Careers
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Terms & Conditions
+                </a>
+              </li>
+            </ul>
           </div>
 
-          {/* Column 2 */}
-          <div className="space-y-4">
-            <a href="#" className="block hover:text-blue-300 transition-colors">
-              Cookie policy
-            </a>
-            <a href="#" className="block hover:text-blue-300 transition-colors">
-              Privacy policy
-            </a>
-            <a href="#" className="block hover:text-blue-300 transition-colors">
-              Terms of service
-            </a>
-            <a href="#" className="block hover:text-blue-300 transition-colors">
-              Company Details
-            </a>
+          {/* DISCOVER Column */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">Discover</h3>
+            <ul className="space-y-3">
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Search Used Cars
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Compare Prices
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Verified Dealers
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Car Reviews
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Popular Brands
+                </a>
+              </li>
+            </ul>
           </div>
 
-          {/* Column 3 */}
-          <div className="space-y-4">
-            <a href="#" className="flex items-center gap-2 hover:text-blue-300 transition-colors">
-              Explore
-              <ChevronDown size={16} />
-            </a>
-            <a href="#" className="flex items-center gap-2 hover:text-blue-300 transition-colors">
-              Company
-              <ChevronDown size={16} />
-            </a>
-            <a href="#" className="flex items-center gap-2 hover:text-blue-300 transition-colors">
-              Partners
-              <ChevronDown size={16} />
-            </a>
-            <a href="#" className="flex items-center gap-2 hover:text-blue-300 transition-colors">
-              Trips
-              <ChevronDown size={16} />
-            </a>
-            <a href="#" className="flex items-center gap-2 hover:text-blue-300 transition-colors">
-              International Sites
-              <ChevronDown size={16} />
-            </a>
+          {/* HELP & SUPPORT Column */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">Help & Support</h3>
+            <ul className="space-y-3">
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  FAQs
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Security
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Contact Us
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-600 hover:text-gray-900 text-sm transition-colors">
+                  Become a Partner
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* SOCIAL LINKS & APP DOWNLOADS */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wide">Social Links</h3>
+            
+            {/* Social Media Icons */}
+            <div className="flex gap-3 mb-6">
+              <a
+                href="#"
+                className="w-10 h-10 rounded-full bg-gray-900 hover:bg-gray-800 flex items-center justify-center transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook size={18} className="text-white" />
+              </a>
+              <a
+                href="#"
+                className="w-10 h-10 rounded-full bg-gray-900 hover:bg-gray-800 flex items-center justify-center transition-colors"
+                aria-label="Twitter"
+              >
+                <Twitter size={18} className="text-white" />
+              </a>
+              <a
+                href="#"
+                className="w-10 h-10 rounded-full bg-gray-900 hover:bg-gray-800 flex items-center justify-center transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram size={18} className="text-white" />
+              </a>
+              <Link
+                href="#"
+                className="w-10 h-10 rounded-full bg-gray-900 hover:bg-gray-800 flex items-center justify-center transition-colors"
+                aria-label="YouTube"
+              >
+                <Youtube size={18} className="text-white" />
+              </Link>
+              <Link
+                href="#"
+                className="w-10 h-10 rounded-full bg-gray-900 hover:bg-gray-800 flex items-center justify-center transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin size={18} className="text-white" />
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div className="border-t border-blue-800 pt-8 text-center space-y-2">
-          <p className="text-white">Cheap used car marketplace from anywhere, to everywhere</p>
-          <p className="text-white text-sm">© Cars4Less Ltd 2026 – 2026</p>
+        {/* Copyright */}
+        <div className="pt-6 border-t border-gray-200 text-center">
+          <p className="text-gray-600 text-sm">
+            2026 Car Metasearch, All rights reserved
+          </p>
         </div>
       </div>
     </footer>

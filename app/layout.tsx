@@ -8,9 +8,9 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Cars4Less - Buy, Sell, and Compare Cars",
+  title: "Used Cars Metasearch - Buy, Sell, and Compare Cars",
   description: "Search and compare cars. Find the best deals on thousands of quality used cars.",
-  generator: "cars4less",
+  generator: "Used Cars Metasearch",
 }
 
 export const viewport: Viewport = {
