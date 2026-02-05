@@ -2,15 +2,21 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { LocationProvider } from "@/contexts/LocationContext"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Used Cars Metasearch - Buy, Sell, and Compare Cars",
+  title: "CarAtlas - Buy and Compare Cars",
   description: "Search and compare cars. Find the best deals on thousands of quality used cars.",
-  generator: "Used Cars Metasearch",
+  generator: "CarAtlas",
+  icons: {
+    icon: "/logos/caratlas-icon.png",
+    shortcut: "/logos/caratlas-icon.png",
+    apple: "/logos/caratlas-icon.png",
+  },
 }
 
 export const viewport: Viewport = {
@@ -28,7 +34,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        {children}
+        <LocationProvider>
+          {children}
+        </LocationProvider>
         <Analytics />
       </body>
     </html>

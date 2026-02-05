@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useParams, useRouter } from "next/navigation"
-import Header from "@/components/Header"
 import { searchAPI, CarListing } from "@/lib/api"
 import { 
   MapPin, 
@@ -16,7 +15,8 @@ import {
   Loader2,
   ArrowLeft,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Image as ImageIcon
 } from "lucide-react"
 import Link from "next/link"
 
@@ -27,6 +27,8 @@ function CarDetailsContent() {
   const [car, setCar] = useState<CarListing | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [heroImageError, setHeroImageError] = useState(false)
+  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     if (listingId) {
@@ -67,7 +69,6 @@ function CarDetailsContent() {
   if (loading) {
     return (
       <main className="min-h-screen bg-gray-50">
-        <Header />
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <Loader2 size={48} className="animate-spin text-[#ED264F] mx-auto mb-4" />
@@ -81,7 +82,6 @@ function CarDetailsContent() {
   if (error || !car) {
     return (
       <main className="min-h-screen bg-gray-50">
-        <Header />
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
           <Link 
             href="/search"
@@ -101,8 +101,6 @@ function CarDetailsContent() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <Header />
-      
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
         {/* Back Button */}
         <Link 
@@ -115,6 +113,22 @@ function CarDetailsContent() {
 
         {/* Main Content */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+          {/* Hero Image Section */}
+          {car.images && car.images.length > 0 && car.images[0] && !heroImageError ? (
+            <div className="relative w-full h-64 md:h-96 bg-gray-900">
+              <img
+                src={car.images[0]}
+                alt={`${car.brand} ${car.model}`}
+                className="w-full h-full object-cover"
+                onError={() => setHeroImageError(true)}
+              />
+            </div>
+          ) : (
+            <div className="relative w-full h-64 md:h-96 bg-gray-200 flex items-center justify-center">
+              <ImageIcon size={64} className="text-gray-400" />
+            </div>
+          )}
+          
           {/* Header Section */}
           <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-8 md:p-12">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -122,10 +136,16 @@ function CarDetailsContent() {
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
                   {car.brand} {car.model}
                 </h1>
-                <p className="text-xl md:text-2xl text-gray-300 mb-4">{car.variant}</p>
+                {car.variant && (
+                  <p className="text-xl md:text-2xl text-gray-300 mb-4">{car.variant}</p>
+                )}
                 <div className="flex items-center gap-2 text-gray-300">
                   <MapPin size={18} />
-                  <span>{car.city}, {car.state}, {car.country}</span>
+                  <span>
+                    {car.city || 'N/A'}
+                    {car.state ? `, ${car.state}` : ''}
+                    {car.country ? `, ${car.country}` : ''}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col items-start md:items-end gap-3">
@@ -150,6 +170,36 @@ function CarDetailsContent() {
             </div>
           </div>
 
+          {/* Image Gallery Section */}
+          {car.images && car.images.length > 0 && (
+            <div className="border-t border-gray-200 p-8 md:p-12 bg-gray-50">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Images</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {car.images.map((imageUrl, index) => {
+                  const hasError = imageErrors.has(index)
+                  return (
+                    <div key={index} className="relative aspect-video bg-gray-200 rounded-lg overflow-hidden group cursor-pointer">
+                      {!hasError && imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={`${car.brand} ${car.model} - Image ${index + 1}`}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          onError={() => {
+                            setImageErrors((prev) => new Set(prev).add(index))
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                          <ImageIcon size={32} className="text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Details Section */}
           <div className="p-8 md:p-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -173,39 +223,55 @@ function CarDetailsContent() {
                       </div>
                       <p className="text-2xl font-bold text-gray-900">{formatMileage(car.mileage)} km</p>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Fuel size={24} className="text-[#ED264F]" />
-                        <span className="text-sm text-gray-500 font-medium">Fuel Type</span>
-                      </div>
-                      <p className="text-2xl font-bold text-gray-900">{car.fuelType}</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Settings2 size={24} className="text-[#ED264F]" />
-                        <span className="text-sm text-gray-500 font-medium">Transmission</span>
-                      </div>
-                      <p className="text-2xl font-bold text-gray-900">{car.transmission}</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Building2 size={24} className="text-[#ED264F]" />
-                        <span className="text-sm text-gray-500 font-medium">Body Type</span>
-                      </div>
-                      <p className="text-2xl font-bold text-gray-900">{car.bodyType}</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-6 h-6 rounded-full border-2 border-[#ED264F] flex items-center justify-center">
-                          <div 
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: car.color.toLowerCase() }}
-                          ></div>
+                    {car.fuelType && (
+                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Fuel size={24} className="text-[#ED264F]" />
+                          <span className="text-sm text-gray-500 font-medium">Fuel Type</span>
                         </div>
-                        <span className="text-sm text-gray-500 font-medium">Color</span>
+                        <p className="text-2xl font-bold text-gray-900">{car.fuelType}</p>
                       </div>
-                      <p className="text-2xl font-bold text-gray-900">{car.color}</p>
-                    </div>
+                    )}
+                    {car.transmission && (
+                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Settings2 size={24} className="text-[#ED264F]" />
+                          <span className="text-sm text-gray-500 font-medium">Transmission</span>
+                        </div>
+                        <p className="text-2xl font-bold text-gray-900">{car.transmission}</p>
+                      </div>
+                    )}
+                    {car.bodyType && (
+                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Building2 size={24} className="text-[#ED264F]" />
+                          <span className="text-sm text-gray-500 font-medium">Body Type</span>
+                        </div>
+                        <p className="text-2xl font-bold text-gray-900">{car.bodyType}</p>
+                      </div>
+                    )}
+                    {car.color && (
+                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-6 h-6 rounded-full border-2 border-[#ED264F] flex items-center justify-center">
+                            <div 
+                              className="w-4 h-4 rounded-full"
+                              style={{ backgroundColor: car.color.toLowerCase() }}
+                            ></div>
+                          </div>
+                          <span className="text-sm text-gray-500 font-medium">Color</span>
+                        </div>
+                        <p className="text-2xl font-bold text-gray-900">{car.color}</p>
+                      </div>
+                    )}
+                    {car.ownership && (
+                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-sm text-gray-500 font-medium">Ownership</span>
+                        </div>
+                        <p className="text-2xl font-bold text-gray-900">{car.ownership}</p>
+                      </div>
+                    )}
                   </div>
                 </section>
 
@@ -221,13 +287,15 @@ function CarDetailsContent() {
                           <p className="text-lg font-semibold text-gray-900">{car.city}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <MapPin size={20} className="text-[#ED264F]" />
-                        <div>
-                          <p className="text-sm text-gray-500">State</p>
-                          <p className="text-lg font-semibold text-gray-900">{car.state}</p>
+                      {car.state && (
+                        <div className="flex items-center gap-3">
+                          <MapPin size={20} className="text-[#ED264F]" />
+                          <div>
+                            <p className="text-sm text-gray-500">State</p>
+                            <p className="text-lg font-semibold text-gray-900">{car.state}</p>
+                          </div>
                         </div>
-                      </div>
+                      )}
                       <div className="flex items-center gap-3">
                         <Globe size={20} className="text-[#ED264F]" />
                         <div>
@@ -255,15 +323,35 @@ function CarDetailsContent() {
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  <a
-                    href={car.externalUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full bg-[#ED264F] hover:bg-[#ED264F]/90 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
-                  >
-                    Visit Dealer Website
-                    <ExternalLink size={18} />
-                  </a>
+                  {(car.trackingUrl || car.externalUrl) ? (
+                    <button
+                      onClick={() => {
+                        const url = car.trackingUrl || car.externalUrl || '';
+                        let finalUrl = url;
+                        
+                        // Ensure absolute URL
+                        if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                          const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3377';
+                          finalUrl = url.startsWith('/') ? `${apiBaseUrl}${url}` : `${apiBaseUrl}/${url}`;
+                        }
+                        
+                        console.log('Opening dealer URL:', finalUrl);
+                        // Use window.open to ensure it opens externally and bypasses Next.js routing
+                        window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="w-full bg-[#ED264F] hover:bg-[#ED264F]/90 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      Visit Dealer Website
+                      <ExternalLink size={18} />
+                    </button>
+                  ) : (
+                    <button
+                      disabled
+                      className="w-full bg-gray-400 cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg flex items-center justify-center gap-2"
+                    >
+                      Dealer Link Not Available
+                    </button>
+                  )}
                   <Link
                     href="/search"
                     className="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
@@ -309,7 +397,6 @@ export default function CarDetailsPage() {
   return (
     <Suspense fallback={
       <main className="min-h-screen bg-gray-50">
-        <Header />
         <div className="flex items-center justify-center py-20">
           <Loader2 size={48} className="animate-spin text-[#ED264F]" />
         </div>
