@@ -59,10 +59,10 @@ export default function MostPopularCars() {
 
   if (loading) {
     return (
-      <section className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <section className="bg-card py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="flex items-center justify-center py-12">
-            <Loader2 size={32} className="animate-spin text-[#ED264F]" />
+            <Loader2 size={32} className="animate-spin text-primary" />
           </div>
         </div>
       </section>
@@ -70,13 +70,13 @@ export default function MostPopularCars() {
   }
 
   return (
-    <section className="bg-white py-16 md:py-20">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+    <section className="bg-card py-12 md:py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
             Most Popular Cars
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-base md:text-lg text-muted-foreground">
             Best deals and most searched cars right now
           </p>
         </div>
@@ -87,10 +87,10 @@ export default function MostPopularCars() {
               <button
                 key={car.id}
                 onClick={() => handleCarClick(car)}
-                className="group relative overflow-hidden rounded-xl bg-white shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="group relative overflow-hidden rounded-xl bg-card border border-border shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-300"
               >
                 {/* Image with overlay */}
-                <div className="relative h-32 md:h-40 w-full bg-gray-200">
+                <div className="relative h-32 md:h-40 w-full bg-muted">
                   {getCarImage(car) ? (
                     <>
                       <img
@@ -122,8 +122,8 @@ export default function MostPopularCars() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <Car size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-600">No popular cars available at the moment</p>
+            <Car size={48} className="mx-auto text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">No popular cars available at the moment</p>
           </div>
         )}
       </div>

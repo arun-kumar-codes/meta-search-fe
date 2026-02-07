@@ -8,11 +8,11 @@ export default function UserLayout({
   children: ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
-      <div className="flex">
+      <div className="flex flex-col md:flex-row min-h-[calc(100vh-4rem)]">
         <UserSidebar />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6 overflow-auto">
           {children}
         </main>
       </div>

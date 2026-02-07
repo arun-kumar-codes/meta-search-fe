@@ -8,12 +8,16 @@ import { searchAPI, SearchParams, CarListing, SearchResponse } from "@/lib/api"
 import { Loader2, Car, MapPin } from "lucide-react"
 import Pagination from "@/components/search/Pagination"
 import { useLocation } from "@/contexts/LocationContext"
+import { useUser } from "@/contexts/UserContext"
+import { usersAPI } from "@/lib/api"
 
 function SearchResultsContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { location, loading: locationLoading } = useLocation()
+  const { user } = useUser()
   const [searchResults, setSearchResults] = useState<CarListing[] | null>(null)
+  const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pagination, setPagination] = useState({
@@ -98,6 +102,16 @@ function SearchResultsContent() {
   }, [])
 
   useEffect(() => {
+    if (!user) {
+      setWishlistIds(new Set())
+      return
+    }
+    usersAPI.getWishlist().then((data) => {
+      setWishlistIds(new Set(data.items.map((i) => i.listingId)))
+    }).catch(() => setWishlistIds(new Set()))
+  }, [user])
+
+  useEffect(() => {
     if (locationLoading) return
     
     const params = getSearchParams()
@@ -128,34 +142,34 @@ function SearchResultsContent() {
   const totalCount = pagination.total > 0 ? pagination.total : (searchResults?.length || 0)
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-background">
       {/* Search Section */}
-      <section className="bg-blue py-6">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <section className="bg-primary/10 border-b border-border py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="mb-4">
-            <div className="flex items-start justify-between flex-wrap gap-3 mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-2">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                   Search Cars
                 </h1>
-                <p className="text-base text-gray-600">
+                <p className="text-base text-muted-foreground">
                   Find the perfect car for you from thousands of verified listings
                 </p>
               </div>
               {location && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm border border-gray-200">
-                  <MapPin size={18} className="text-[#ED264F]" />
-                  <div className="text-sm">
-                    <div className="font-semibold text-gray-900">{location.city}</div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border shadow-sm shrink-0">
+                  <MapPin size={18} className="text-primary shrink-0" />
+                  <div className="text-sm min-w-0">
+                    <div className="font-semibold text-foreground truncate">{location.city}</div>
                     {location.state && (
-                      <div className="text-xs text-gray-600">{location.state}</div>
+                      <div className="text-xs text-muted-foreground">{location.state}</div>
                     )}
                   </div>
                 </div>
               )}
             </div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 md:p-5">
+          <div className="bg-card rounded-xl border border-border p-4 md:p-5">
             <SearchFormCar initialValues={initialSearchParams} variant="page" />
           </div>
         </div>
@@ -163,12 +177,12 @@ function SearchResultsContent() {
 
       {/* Results Section */}
       <section className="py-6 md:py-8">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           {loading && (
-            <div className="flex items-center justify-center py-20">
+            <div className="flex items-center justify-center py-16 md:py-20">
               <div className="text-center">
-                <Loader2 size={48} className="animate-spin text-[#ED264F] mx-auto mb-4" />
-                <p className="text-gray-600 text-lg">Searching for cars...</p>
+                <Loader2 size={48} className="animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground text-lg">Searching for cars...</p>
               </div>
             </div>
           )}
@@ -182,31 +196,25 @@ function SearchResultsContent() {
 
           {/* Results Header */}
           {!loading && !error && (
-            <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               {searchResults && searchResults.length > 0 ? (
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                    Found {totalCount} {totalCount === 1 ? 'car' : 'cars'}
-                  </h2>
-                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                  Found {totalCount} {totalCount === 1 ? 'car' : 'cars'}
+                </h2>
               ) : searchResults && searchResults.length === 0 ? (
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                    No Results Found
-                  </h2>
-                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                  No Results Found
+                </h2>
               ) : (
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                    Browse Available Cars
-                  </h2>
-                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                  Browse Available Cars
+                </h2>
               )}
               {searchResults && searchResults.length > 0 && (
                 <button
                   onClick={handleShowAllCars}
                   disabled={loading}
-                  className="bg-gradient-to-r from-[#ED264F] to-[#FF6B9D] hover:from-[#ED264F]/90 hover:to-[#FF6B9D]/90 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-all text-sm flex items-center justify-center gap-1.5"
+                  className="bg-primary hover:opacity-90 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-all text-sm flex items-center justify-center gap-1.5 shrink-0"
                 >
                   <Car size={16} />
                   <span>Show All</span>
@@ -219,7 +227,29 @@ function SearchResultsContent() {
             <>
               <div className="space-y-3 mb-6">
                 {searchResults.map((car) => (
-                  <CarCardHorizontal key={car.id} car={car} />
+                  <CarCardHorizontal
+                    key={car.id}
+                    car={car}
+                    returnCity={getSearchParams().city}
+                    inWishlist={user ? wishlistIds.has(car.id) : undefined}
+                    onWishlistClick={user ? async () => {
+                      try {
+                        if (wishlistIds.has(car.id)) {
+                          await usersAPI.removeWishlist(car.id)
+                          setWishlistIds((prev) => {
+                            const next = new Set(prev)
+                            next.delete(car.id)
+                            return next
+                          })
+                        } else {
+                          await usersAPI.addWishlist(car.id)
+                          setWishlistIds((prev) => new Set(prev).add(car.id))
+                        }
+                      } catch {
+                        // ignore
+                      }
+                    } : undefined}
+                  />
                 ))}
               </div>
               
@@ -236,13 +266,13 @@ function SearchResultsContent() {
           )}
 
           {!loading && !error && searchResults && searchResults.length === 0 && (
-            <div className="bg-white rounded-lg p-8 text-center border border-gray-200">
-              <Car size={48} className="mx-auto text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No cars found</h3>
-              <p className="text-gray-600 mb-4">No cars match your search criteria.</p>
+            <div className="bg-card rounded-xl p-6 md:p-8 text-center border border-border">
+              <Car size={48} className="mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-xl font-bold text-foreground mb-2">No cars found</h3>
+              <p className="text-muted-foreground mb-4">No cars match your search criteria.</p>
               <button
                 onClick={handleShowAllCars}
-                className="bg-gradient-to-r from-[#ED264F] to-[#FF6B9D] hover:from-[#ED264F]/90 hover:to-[#FF6B9D]/90 text-white font-semibold py-2 px-6 rounded-lg transition-all text-sm inline-flex items-center gap-2"
+                className="bg-primary hover:opacity-90 text-primary-foreground font-semibold py-2 px-6 rounded-lg transition-all text-sm inline-flex items-center gap-2"
               >
                 <Car size={16} />
                 <span>Browse All Cars</span>
@@ -251,10 +281,10 @@ function SearchResultsContent() {
           )}
 
           {!loading && !error && !searchResults && (
-            <div className="bg-white rounded-lg p-8 text-center border border-gray-200">
-              <Car size={48} className="mx-auto text-gray-300 mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Ready to Search</h3>
-              <p className="text-gray-600 text-sm">Use the search form above to find your perfect car.</p>
+            <div className="bg-card rounded-xl p-6 md:p-8 text-center border border-border">
+              <Car size={48} className="mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-xl font-bold text-foreground mb-2">Ready to Search</h3>
+              <p className="text-muted-foreground text-sm">Use the search form above to find your perfect car.</p>
             </div>
           )}
         </div>
@@ -266,9 +296,9 @@ function SearchResultsContent() {
 export default function SearchPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-background">
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={32} className="animate-spin text-[#ED264F]" />
+          <Loader2 size={32} className="animate-spin text-primary" />
         </div>
       </main>
     }>

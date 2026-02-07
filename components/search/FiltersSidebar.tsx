@@ -10,7 +10,7 @@ const sections: { id: SectionId; label: string }[] = [
   { id: "basic", label: "Brand & Model" },
   { id: "price", label: "Price" },
   { id: "yearRange", label: "Year" },
-  { id: "mileage", label: "Mileage" },
+  { id: "mileage", label: "KM Driven" },
   { id: "location", label: "Location" },
   { id: "specs", label: "Specs" },
 ]
@@ -153,7 +153,7 @@ export default function FiltersSidebar({
 
     const Field = ({ label, children }: { label: string; children: ReactNode }) => (
       <div>
-        <div className="text-sm font-semibold text-gray-700 mb-2">{label}</div>
+        <div className="text-sm font-semibold text-foreground mb-2">{label}</div>
         {children}
       </div>
     )
@@ -267,7 +267,7 @@ export default function FiltersSidebar({
                 }}
               />
             </Field>
-            <Field label="Max Mileage (km)">
+            <Field label="Max KM Driven">
               <input
                 ref={maxMileageRef}
                 type="number"
@@ -374,7 +374,7 @@ export default function FiltersSidebar({
         type="button"
         onClick={() => setActiveSection(id)}
         className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
-          active ? "bg-[#ED264F]/10 text-[#ED264F]" : "text-gray-700 hover:bg-gray-50"
+          active ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
         }`}
       >
         {label}
@@ -388,12 +388,12 @@ export default function FiltersSidebar({
       <button
         type="button"
         onClick={() => openDrawer("basic")}
-        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 font-semibold text-gray-900 transition-all"
+        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-card border border-border hover:border-primary/50 hover:bg-muted font-semibold text-foreground transition-all"
       >
         <SlidersHorizontal size={18} />
         <span>Filters</span>
         {activeCount > 0 && (
-          <span className="ml-1 inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-[#ED264F] text-white text-xs font-bold">
+          <span className="ml-1 inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-bold">
             {activeCount}
           </span>
         )}
@@ -411,21 +411,21 @@ export default function FiltersSidebar({
 
         {/* Panel */}
         <div
-          className={`absolute inset-y-0 left-0 w-full max-w-[760px] bg-white shadow-2xl transform transition-transform duration-300 ${
+          className={`absolute inset-y-0 left-0 w-full max-w-[760px] bg-card shadow-2xl transform transition-transform duration-300 ${
             drawerOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <div className="h-full flex flex-col">
             {/* Header */}
-            <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between">
+            <div className="px-4 py-4 border-b border-border flex items-center justify-between">
               <div>
-                <div className="text-lg font-extrabold text-gray-900">Filters & Sorting</div>
-                <div className="text-xs text-gray-500">Applied by backend via query params</div>
+                <div className="text-lg font-extrabold text-foreground">Filters & Sorting</div>
+                <div className="text-xs text-muted-foreground">Applied by backend via query params</div>
               </div>
               <button
                 type="button"
                 onClick={closeDrawer}
-                className="p-2 rounded-xl hover:bg-gray-100 text-gray-700"
+                className="p-2 rounded-xl hover:bg-muted text-foreground"
                 aria-label="Close"
               >
                 <X size={18} />
@@ -433,7 +433,7 @@ export default function FiltersSidebar({
             </div>
 
             {/* Mobile tabs */}
-            <div className="md:hidden px-3 py-2 border-b border-gray-200 overflow-x-auto">
+            <div className="md:hidden px-3 py-2 border-b border-border overflow-x-auto">
               <div className="flex items-center gap-2 min-w-max">
                 {sections.map((s) => (
                   <button
@@ -441,7 +441,7 @@ export default function FiltersSidebar({
                     type="button"
                     onClick={() => setActiveSection(s.id)}
                     className={`px-3 py-2 rounded-full text-xs font-bold whitespace-nowrap ${
-                      activeSection === s.id ? "bg-[#ED264F] text-white" : "bg-gray-100 text-gray-700"
+                      activeSection === s.id ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
                     }`}
                   >
                     {s.label}
@@ -453,7 +453,7 @@ export default function FiltersSidebar({
             {/* Content */}
             <div className="flex-1 flex overflow-hidden">
               {/* Desktop left list */}
-              <div className="hidden md:block w-56 border-r border-gray-200 p-3">
+              <div className="hidden md:block w-56 border-r border-border p-3 shrink-0">
                 <div className="space-y-1">
                   {sections.map((s) => (
                     <SectionButton key={s.id} id={s.id} label={s.label} />
@@ -470,7 +470,7 @@ export default function FiltersSidebar({
                 )}
 
                 {metaLoading && (
-                  <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
+                  <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 size={16} className="animate-spin" />
                     Loading filter options...
                   </div>
@@ -481,25 +481,25 @@ export default function FiltersSidebar({
             </div>
 
             {/* Footer actions */}
-            <div className="px-4 py-4 border-t border-gray-200 bg-white">
+            <div className="px-4 py-4 border-t border-border bg-card">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={clearDraft}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-gray-300 hover:bg-gray-50 font-bold text-gray-800 transition-all"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border hover:bg-muted font-bold text-foreground transition-all"
                 >
                   <span>Reset</span>
                 </button>
                 <button
                   type="button"
                   onClick={applyDraft}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#ED264F] to-[#FF6B9D] hover:from-[#ED264F]/90 hover:to-[#FF6B9D]/90 font-extrabold text-white transition-all shadow-md hover:shadow-lg"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary hover:opacity-90 font-extrabold text-primary-foreground transition-all shadow-md"
                 >
                   <Check size={18} />
                   <span>Apply</span>
                 </button>
               </div>
-              <div className="mt-2 text-[11px] text-gray-500">
+              <div className="mt-2 text-[11px] text-muted-foreground">
                 Tip: After applying, pagination buttons will request the backend with the same filters.
               </div>
             </div>

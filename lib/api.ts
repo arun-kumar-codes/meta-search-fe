@@ -20,7 +20,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+    const token = typeof window !== 'undefined' ? localStorage.getItem('user_token') : null
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -97,6 +97,7 @@ export interface CarListing {
   agency: {
     id: string
     name: string
+    whatsappNumber?: string
   }
 }
 
@@ -187,5 +188,58 @@ export const searchAPI = {
   },
 }
 
+export interface UserProfile {
+  id: string
+  phone: string
+  name?: string
+  email?: string
+  suggestionsOptIn: boolean
+}
+
+export const userAuthAPI = {
+  sendOtp: async (phone: string) => {
+    const { data } = await api.post(endpoints.userSendOtp, { phone })
+    return data
+  },
+  verifyOtp: async (phone: string, otp: string) => {
+    const { data } = await api.post(endpoints.userVerifyOtp, { phone, otp })
+    return data as { accessToken: string; user: UserProfile }
+  },
+}
+
+export const usersAPI = {
+  recordHistory: async (listingId: string) => {
+    const { data } = await api.post(endpoints.userHistory, { listingId })
+    return data
+  },
+  getHistory: async () => {
+    const { data } = await api.get(endpoints.userHistory)
+    return data as { items: { listingId: string; viewedAt: string; listing: CarListing | null }[]; listings: CarListing[] }
+  },
+  addWishlist: async (listingId: string) => {
+    const { data } = await api.post(`${endpoints.userWishlist}/${listingId}`)
+    return data
+  },
+  removeWishlist: async (listingId: string) => {
+    const { data } = await api.delete(`${endpoints.userWishlist}/${listingId}`)
+    return data
+  },
+  getWishlist: async () => {
+    const { data } = await api.get(endpoints.userWishlist)
+    return data as { items: { listingId: string; createdAt: string; listing: CarListing | null }[]; listings: CarListing[] }
+  },
+  checkWishlist: async (listingId: string) => {
+    const { data } = await api.get(endpoints.userWishlistCheck(listingId))
+    return data as { inWishlist: boolean }
+  },
+  updatePreferences: async (suggestionsOptIn: boolean) => {
+    const { data } = await api.post(endpoints.userPreferences, { suggestionsOptIn })
+    return data as UserProfile
+  },
+  getPreferences: async () => {
+    const { data } = await api.get(endpoints.userPreferences)
+    return data as UserProfile
+  },
+}
 
 export default api

@@ -41,8 +41,8 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
       case "price_desc": return "Price ↓"
       case "year_desc": return "Year ↓"
       case "year_asc": return "Year ↑"
-      case "mileage_asc": return "Mileage ↑"
-      case "mileage_desc": return "Mileage ↓"
+      case "mileage_asc": return "KM Driven ↑"
+      case "mileage_desc": return "KM Driven ↓"
       default: return "Relevance"
     }
   }
@@ -161,11 +161,11 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
 
   const isHero = variant === "hero"
   const controlClass = isHero
-    ? "w-full px-4 py-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-gray-400 text-white bg-white/10 backdrop-blur-sm placeholder:text-white/70"
-    : "w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-[#ED264F] focus:ring-2 focus:ring-[#ED264F]/20 text-gray-900 bg-white transition-all"
+    ? "w-full px-4 py-4 border-2 border-white/30 rounded-lg focus:outline-none focus:border-white/60 text-white bg-white/10 backdrop-blur-sm placeholder:text-white/70"
+    : "w-full px-4 py-3 rounded-xl border border-border focus:outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 text-foreground bg-card transition-all"
   const labelClass = isHero
     ? "block text-sm font-medium text-white mb-2"
-    : "block text-sm font-semibold text-gray-700 mb-2"
+    : "block text-sm font-semibold text-foreground mb-2"
 
   // HERO (keep simple)
   if (variant === "hero") {
@@ -255,7 +255,7 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
             <button
               type="submit"
               disabled={heroLoading}
-              className="bg-[#ED264F] text-white hover:bg-[#ED264F]/90 text-md disabled:bg-gray-400 disabled:cursor-not-allowed px-8 py-4 rounded-xl font-semibold transition-all w-full md:w-auto flex items-center justify-center gap-2"
+              className="bg-primary text-primary-foreground hover:opacity-90 text-md disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-semibold transition-all w-full md:w-auto flex items-center justify-center gap-2"
             >
               {heroLoading ? (
                 <>
@@ -279,7 +279,7 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
     ["year", applied.year],
     ["price", applied.minPrice || applied.maxPrice ? `${applied.minPrice || "0"} - ${applied.maxPrice || "∞"}` : ""],
     ["year range", applied.minYear || applied.maxYear ? `${applied.minYear || "Any"} - ${applied.maxYear || "Any"}` : ""],
-    ["mileage", applied.minMileage || applied.maxMileage ? `${applied.minMileage || "0"} - ${applied.maxMileage || "∞"}` : ""],
+    ["KM Driven", applied.minMileage || applied.maxMileage ? `${applied.minMileage || "0"} - ${applied.maxMileage || "∞"}` : ""],
     ["location", applied.city || ""],
     ["fuel", applied.fuelType],
     ["transmission", applied.transmission],
@@ -353,9 +353,9 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
             }}
           />
           <div className="flex items-center gap-2">
-            <label className="text-sm font-semibold text-gray-700 hidden sm:block">Sort:</label>
+            <label className="text-sm font-semibold text-foreground hidden sm:block">Sort:</label>
             <select
-              className="w-full sm:w-auto px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-[#ED264F] focus:ring-2 focus:ring-[#ED264F]/20 text-gray-900 bg-white transition-all font-semibold"
+              className="w-full sm:w-auto px-4 py-3 rounded-xl border border-border focus:outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 text-foreground bg-card transition-all font-semibold"
               value={applied.sortBy || ""}
               onChange={(e) => {
                 const next = (e.target.value || undefined) as SearchParams["sortBy"] | undefined
@@ -381,22 +381,22 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
             {chips.map((c) => (
               <span
                 key={`${c.k}-${c.v}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border text-xs font-semibold text-foreground"
               >
-                <span className="text-gray-500">{c.k}:</span>
-                <span className="text-gray-900">{c.v}</span>
+                <span className="text-muted-foreground">{c.k}:</span>
+                <span>{c.v}</span>
               </span>
             ))}
             {applied.sortBy && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs font-semibold text-gray-700">
-                <span className="text-gray-500">sort:</span>
-                <span className="text-gray-900">{sortLabel(applied.sortBy)}</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border text-xs font-semibold text-foreground">
+                <span className="text-muted-foreground">sort:</span>
+                <span>{sortLabel(applied.sortBy)}</span>
               </span>
             )}
             <button
               type="button"
               onClick={clearAllApplied}
-              className="ml-auto text-xs font-bold text-[#ED264F] hover:underline"
+              className="ml-auto text-xs font-bold text-primary hover:underline"
             >
               Clear all
             </button>

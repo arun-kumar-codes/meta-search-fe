@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { searchAPI, CarListing } from "@/lib/api"
+import { useParams, useSearchParams } from "next/navigation"
+import { searchAPI, usersAPI, type CarListing } from "@/lib/api"
 import { 
   MapPin, 
   Calendar, 
@@ -16,25 +16,54 @@ import {
   ArrowLeft,
   CheckCircle2,
   XCircle,
-  Image as ImageIcon
+  Image as ImageIcon,
+  MessageCircle,
+  Heart
 } from "lucide-react"
 import Link from "next/link"
+import { useUser } from "@/contexts/UserContext"
+import { useLocation } from "@/contexts/LocationContext"
+import { getCachedLocation } from "@/lib/location"
+import WhatsAppContactModal from "@/components/shared/WhatsAppContactModal"
+import ImageGalleryModal from "@/components/shared/ImageGalleryModal"
 
 function CarDetailsContent() {
   const params = useParams()
-  const router = useRouter()
+  const searchParams = useSearchParams()
   const listingId = params.id as string
+  const { user } = useUser()
+  const { location } = useLocation()
+  const searchBackUrl = (() => {
+    const fromCity = searchParams.get("from_city")
+    const city = fromCity || location?.city || getCachedLocation()?.city || "Delhi"
+    return `/search?city=${encodeURIComponent(city)}`
+  })()
   const [car, setCar] = useState<CarListing | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [heroImageError, setHeroImageError] = useState(false)
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set())
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [galleryOpen, setGalleryOpen] = useState(false)
+  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false)
+  const [inWishlist, setInWishlist] = useState(false)
+  const [wishlistLoading, setWishlistLoading] = useState(false)
 
   useEffect(() => {
     if (listingId) {
       fetchCarDetails()
     }
   }, [listingId])
+
+  useEffect(() => {
+    if (car && user) {
+      usersAPI.recordHistory(car.id).catch(() => {})
+    }
+  }, [car?.id, user])
+
+  useEffect(() => {
+    if (!user || !car) return
+    usersAPI.checkWishlist(car.id).then((r) => setInWishlist(r.inWishlist)).catch(() => setInWishlist(false))
+  }, [user, car?.id])
 
   const fetchCarDetails = async () => {
     setLoading(true)
@@ -68,11 +97,11 @@ function CarDetailsContent() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-background">
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
-            <Loader2 size={48} className="animate-spin text-[#ED264F] mx-auto mb-4" />
-            <p className="text-gray-600">Loading car details...</p>
+            <Loader2 size={48} className="animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading car details...</p>
           </div>
         </div>
       </main>
@@ -81,11 +110,11 @@ function CarDetailsContent() {
 
   if (error || !car) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
+      <main className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12">
           <Link 
-            href="/search"
-            className="inline-flex items-center gap-2 text-[#ED264F] hover:text-[#ED264F]/80 mb-6"
+            href={searchBackUrl}
+            className="inline-flex items-center gap-2 text-primary hover:opacity-80 mb-6"
           >
             <ArrowLeft size={20} />
             <span>Back to Search</span>
@@ -104,8 +133,8 @@ function CarDetailsContent() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
         {/* Back Button */}
         <Link 
-          href="/search"
-          className="inline-flex items-center gap-2 text-[#ED264F] hover:text-[#ED264F]/80 mb-6 transition-colors"
+          href={searchBackUrl}
+          className="inline-flex items-center gap-2 text-[#03C5F8] hover:text-[#03C5F8]/80 mb-6 transition-colors"
         >
           <ArrowLeft size={20} />
           <span>Back to Search Results</span>
@@ -113,22 +142,68 @@ function CarDetailsContent() {
 
         {/* Main Content */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-          {/* Hero Image Section */}
-          {car.images && car.images.length > 0 && car.images[0] && !heroImageError ? (
+          {/* Hero: single cover image (click to open gallery) */}
+          {car.images && car.images.length > 0 ? (
             <div className="relative w-full h-64 md:h-96 bg-gray-900">
-              <img
-                src={car.images[0]}
-                alt={`${car.brand} ${car.model}`}
-                className="w-full h-full object-cover"
-                onError={() => setHeroImageError(true)}
-              />
+              {car.images[selectedImageIndex] && !imageErrors.has(selectedImageIndex) ? (
+                <button
+                  type="button"
+                  onClick={() => setGalleryOpen(true)}
+                  className="block w-full h-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#03C5F8]"
+                >
+                  <img
+                    src={car.images[selectedImageIndex]}
+                    alt={`${car.brand} ${car.model}`}
+                    className="w-full h-full object-cover"
+                    onError={() => setImageErrors((prev) => new Set(prev).add(selectedImageIndex))}
+                  />
+                </button>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-muted">
+                  <ImageIcon size={64} className="text-muted-foreground" />
+                </div>
+              )}
             </div>
           ) : (
-            <div className="relative w-full h-64 md:h-96 bg-gray-200 flex items-center justify-center">
-              <ImageIcon size={64} className="text-gray-400" />
+            <div className="relative w-full h-64 md:h-96 bg-muted flex items-center justify-center">
+              <ImageIcon size={64} className="text-muted-foreground" />
             </div>
           )}
-          
+
+          {/* Thumbnail strip: select hero image or open gallery */}
+          {car.images && car.images.length > 1 && (
+            <div className="px-4 py-3 border-b border-border bg-muted/20 overflow-x-auto">
+              <div className="flex gap-2 justify-start min-w-max">
+                {car.images.map((imageUrl, index) => {
+                  const hasError = imageErrors.has(index)
+                  return (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => (index === selectedImageIndex ? setGalleryOpen(true) : setSelectedImageIndex(index))}
+                      className={`shrink-0 w-20 h-14 md:w-24 md:h-16 rounded-lg overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-[#03C5F8] ${
+                        index === selectedImageIndex ? "border-[#03C5F8] ring-2 ring-[#03C5F8]/30" : "border-transparent hover:border-gray-300"
+                      }`}
+                    >
+                      {!hasError && imageUrl ? (
+                        <img src={imageUrl} alt="" className="w-full h-full object-cover" onError={() => setImageErrors((prev) => new Set(prev).add(index))} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted"><ImageIcon size={20} className="text-muted-foreground" /></div>
+                      )}
+                    </button>
+                  )
+                })}
+                <button
+                  type="button"
+                  onClick={() => setGalleryOpen(true)}
+                  className="shrink-0 w-20 h-14 md:w-24 md:h-16 rounded-lg border-2 border-dashed border-gray-300 hover:border-[#03C5F8] flex items-center justify-center text-sm text-muted-foreground hover:text-[#03C5F8]"
+                >
+                  View all
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Header Section */}
           <div className="bg-gradient-to-r from-gray-800 to-gray-900 p-8 md:p-12">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -170,106 +245,118 @@ function CarDetailsContent() {
             </div>
           </div>
 
-          {/* Image Gallery Section */}
-          {car.images && car.images.length > 0 && (
-            <div className="border-t border-gray-200 p-8 md:p-12 bg-gray-50">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Images</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {car.images.map((imageUrl, index) => {
-                  const hasError = imageErrors.has(index)
-                  return (
-                    <div key={index} className="relative aspect-video bg-gray-200 rounded-lg overflow-hidden group cursor-pointer">
-                      {!hasError && imageUrl ? (
-                        <img
-                          src={imageUrl}
-                          alt={`${car.brand} ${car.model} - Image ${index + 1}`}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                          onError={() => {
-                            setImageErrors((prev) => new Set(prev).add(index))
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                          <ImageIcon size={32} className="text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+          {/* Price, link and WhatsApp section - below header */}
+          <div className="border-b border-border bg-white px-6 py-4 md:px-8 md:py-5">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Price</p>
+                  <p className="text-2xl md:text-3xl font-bold text-foreground">{formatPrice(car.price, car.currency)}</p>
+                </div>
+                {(car.externalUrl && String(car.externalUrl).trim()) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = car.trackingUrl || car.externalUrl || '';
+                      let finalUrl = url;
+                      if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3377';
+                        finalUrl = url.startsWith('/') ? `${apiBaseUrl}${url}` : `${apiBaseUrl}/${url}`;
+                      }
+                      window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                    }}
+                    className="inline-flex items-center gap-2 bg-[#03C5F8] hover:opacity-90 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors"
+                  >
+                    Visit Dealer Website
+                    <ExternalLink size={18} />
+                  </button>
+                )}
               </div>
+              {car.agency?.whatsappNumber && String(car.agency.whatsappNumber).trim() && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setWhatsappModalOpen(true)}
+                    className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors"
+                  >
+                    <MessageCircle size={18} />
+                    Message dealer on WhatsApp
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           {/* Details Section */}
-          <div className="p-8 md:p-12">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="p-6 md:p-8 lg:p-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
               {/* Left Column - Main Details */}
-              <div className="lg:col-span-2 space-y-8">
+              <div className="lg:col-span-2 space-y-6 lg:space-y-8">
                 {/* Key Specifications */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Key Specifications</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground mb-4 md:mb-6">Key Specifications</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                    <div className="bg-muted/50 rounded-lg p-4 md:p-6 border border-border">
                       <div className="flex items-center gap-3 mb-2">
-                        <Calendar size={24} className="text-[#ED264F]" />
-                        <span className="text-sm text-gray-500 font-medium">Manufacturing Year</span>
+                        <Calendar size={24} className="text-primary shrink-0" />
+                        <span className="text-sm text-muted-foreground font-medium">Manufacturing Year</span>
                       </div>
-                      <p className="text-2xl font-bold text-gray-900">{car.year}</p>
+                      <p className="text-xl md:text-2xl font-bold text-foreground">{car.year}</p>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <div className="bg-muted/50 rounded-lg p-4 md:p-6 border border-border">
                       <div className="flex items-center gap-3 mb-2">
-                        <Gauge size={24} className="text-[#ED264F]" />
-                        <span className="text-sm text-gray-500 font-medium">Mileage</span>
+                        <Gauge size={24} className="text-primary shrink-0" />
+                        <span className="text-sm text-muted-foreground font-medium">KM Driven</span>
                       </div>
-                      <p className="text-2xl font-bold text-gray-900">{formatMileage(car.mileage)} km</p>
+                      <p className="text-xl md:text-2xl font-bold text-foreground">{formatMileage(car.mileage)} km</p>
                     </div>
                     {car.fuelType && (
-                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                      <div className="bg-muted/50 rounded-lg p-4 md:p-6 border border-border">
                         <div className="flex items-center gap-3 mb-2">
-                          <Fuel size={24} className="text-[#ED264F]" />
-                          <span className="text-sm text-gray-500 font-medium">Fuel Type</span>
+                          <Fuel size={24} className="text-primary shrink-0" />
+                          <span className="text-sm text-muted-foreground font-medium">Fuel Type</span>
                         </div>
-                        <p className="text-2xl font-bold text-gray-900">{car.fuelType}</p>
+                        <p className="text-xl md:text-2xl font-bold text-foreground">{car.fuelType}</p>
                       </div>
                     )}
                     {car.transmission && (
-                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                      <div className="bg-muted/50 rounded-lg p-4 md:p-6 border border-border">
                         <div className="flex items-center gap-3 mb-2">
-                          <Settings2 size={24} className="text-[#ED264F]" />
-                          <span className="text-sm text-gray-500 font-medium">Transmission</span>
+                          <Settings2 size={24} className="text-primary shrink-0" />
+                          <span className="text-sm text-muted-foreground font-medium">Transmission</span>
                         </div>
-                        <p className="text-2xl font-bold text-gray-900">{car.transmission}</p>
+                        <p className="text-xl md:text-2xl font-bold text-foreground">{car.transmission}</p>
                       </div>
                     )}
                     {car.bodyType && (
-                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                      <div className="bg-muted/50 rounded-lg p-4 md:p-6 border border-border">
                         <div className="flex items-center gap-3 mb-2">
-                          <Building2 size={24} className="text-[#ED264F]" />
-                          <span className="text-sm text-gray-500 font-medium">Body Type</span>
+                          <Building2 size={24} className="text-primary shrink-0" />
+                          <span className="text-sm text-muted-foreground font-medium">Body Type</span>
                         </div>
-                        <p className="text-2xl font-bold text-gray-900">{car.bodyType}</p>
+                        <p className="text-xl md:text-2xl font-bold text-foreground">{car.bodyType}</p>
                       </div>
                     )}
                     {car.color && (
-                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                      <div className="bg-muted/50 rounded-lg p-4 md:p-6 border border-border">
                         <div className="flex items-center gap-3 mb-2">
-                          <div className="w-6 h-6 rounded-full border-2 border-[#ED264F] flex items-center justify-center">
+                          <div className="w-6 h-6 rounded-full border-2 border-primary flex items-center justify-center shrink-0">
                             <div 
                               className="w-4 h-4 rounded-full"
                               style={{ backgroundColor: car.color.toLowerCase() }}
                             ></div>
                           </div>
-                          <span className="text-sm text-gray-500 font-medium">Color</span>
+                          <span className="text-sm text-muted-foreground font-medium">Color</span>
                         </div>
-                        <p className="text-2xl font-bold text-gray-900">{car.color}</p>
+                        <p className="text-xl md:text-2xl font-bold text-foreground">{car.color}</p>
                       </div>
                     )}
                     {car.ownership && (
-                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                      <div className="bg-muted/50 rounded-lg p-4 md:p-6 border border-border">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className="text-sm text-gray-500 font-medium">Ownership</span>
+                          <span className="text-sm text-muted-foreground font-medium">Ownership</span>
                         </div>
-                        <p className="text-2xl font-bold text-gray-900">{car.ownership}</p>
+                        <p className="text-xl md:text-2xl font-bold text-foreground">{car.ownership}</p>
                       </div>
                     )}
                   </div>
@@ -277,30 +364,30 @@ function CarDetailsContent() {
 
                 {/* Location Information */}
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Location</h2>
-                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground mb-4 md:mb-6">Location</h2>
+                  <div className="bg-muted/50 rounded-lg p-4 md:p-6 border border-border">
                     <div className="space-y-4">
                       <div className="flex items-center gap-3">
-                        <MapPin size={20} className="text-[#ED264F]" />
-                        <div>
-                          <p className="text-sm text-gray-500">City</p>
-                          <p className="text-lg font-semibold text-gray-900">{car.city}</p>
+                        <MapPin size={20} className="text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm text-muted-foreground">City</p>
+                          <p className="text-lg font-semibold text-foreground">{car.city}</p>
                         </div>
                       </div>
                       {car.state && (
                         <div className="flex items-center gap-3">
-                          <MapPin size={20} className="text-[#ED264F]" />
-                          <div>
-                            <p className="text-sm text-gray-500">State</p>
-                            <p className="text-lg font-semibold text-gray-900">{car.state}</p>
+                          <MapPin size={20} className="text-primary shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-sm text-muted-foreground">State</p>
+                            <p className="text-lg font-semibold text-foreground">{car.state}</p>
                           </div>
                         </div>
                       )}
                       <div className="flex items-center gap-3">
-                        <Globe size={20} className="text-[#ED264F]" />
-                        <div>
-                          <p className="text-sm text-gray-500">Country</p>
-                          <p className="text-lg font-semibold text-gray-900">{car.country}</p>
+                        <Globe size={20} className="text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm text-muted-foreground">Country</p>
+                          <p className="text-lg font-semibold text-foreground">{car.country}</p>
                         </div>
                       </div>
                     </div>
@@ -309,75 +396,118 @@ function CarDetailsContent() {
               </div>
 
               {/* Right Column - Dealer Info & Actions */}
-              <div className="lg:col-span-1 space-y-6 mt-14">
+              <div className="lg:col-span-1 space-y-6 lg:mt-0 mt-6">
                 {/* Dealer Information */}
-                <section className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Dealer Information</h3>
+                <section className="bg-muted/50 rounded-lg p-4 md:p-6 border border-border">
+                  <h3 className="text-lg md:text-xl font-bold text-foreground mb-4">Dealer Information</h3>
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Dealer Name</p>
-                      <p className="text-lg font-semibold text-gray-900">{car.agency.name}</p>
+                      <p className="text-sm text-muted-foreground mb-1">Dealer Name</p>
+                      <p className="text-lg font-semibold text-foreground">{car.agency.name}</p>
                     </div>
                   </div>
                 </section>
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  {(car.trackingUrl || car.externalUrl) ? (
-                    <button
-                      onClick={() => {
-                        const url = car.trackingUrl || car.externalUrl || '';
-                        let finalUrl = url;
-                        
-                        // Ensure absolute URL
-                        if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
-                          const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3377';
-                          finalUrl = url.startsWith('/') ? `${apiBaseUrl}${url}` : `${apiBaseUrl}/${url}`;
+                  {user && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!car) return
+                      setWishlistLoading(true)
+                      try {
+                        if (inWishlist) {
+                          await usersAPI.removeWishlist(car.id)
+                          setInWishlist(false)
+                        } else {
+                          await usersAPI.addWishlist(car.id)
+                          setInWishlist(true)
                         }
-                        
-                        console.log('Opening dealer URL:', finalUrl);
-                        // Use window.open to ensure it opens externally and bypasses Next.js routing
-                        window.open(finalUrl, '_blank', 'noopener,noreferrer');
-                      }}
-                      className="w-full bg-[#ED264F] hover:bg-[#ED264F]/90 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      Visit Dealer Website
-                      <ExternalLink size={18} />
-                    </button>
-                  ) : (
-                    <button
-                      disabled
-                      className="w-full bg-gray-400 cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg flex items-center justify-center gap-2"
-                    >
-                      Dealer Link Not Available
-                    </button>
-                  )}
-                  <Link
-                    href="/search"
-                    className="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                      } finally {
+                        setWishlistLoading(false)
+                      }
+                    }}
+                    disabled={wishlistLoading}
+                    className={`w-full font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2 border transition-colors ${
+                      inWishlist
+                        ? "bg-primary/10 text-primary border-primary/30 hover:bg-primary/20"
+                        : "border-border text-foreground hover:bg-muted"
+                    }`}
                   >
-                    Back to Search
-                  </Link>
-                </div>
+                    <Heart size={18} className={inWishlist ? "fill-current" : ""} />
+                    {inWishlist ? "In Wishlist" : "Add to Wishlist"}
+                  </button>
+                )}
+                {car.agency?.whatsappNumber && String(car.agency.whatsappNumber).trim() && (
+                  <button
+                    type="button"
+                    onClick={() => setWhatsappModalOpen(true)}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <MessageCircle size={18} />
+                    Message dealer on WhatsApp
+                  </button>
+                )}
+                {(car.externalUrl && String(car.externalUrl).trim()) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = car.trackingUrl || car.externalUrl || '';
+                      let finalUrl = url;
+                      if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+                        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3377';
+                        finalUrl = url.startsWith('/') ? `${apiBaseUrl}${url}` : `${apiBaseUrl}/${url}`;
+                      }
+                      window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                    }}
+                    className="w-full bg-primary hover:opacity-90 text-primary-foreground font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    Visit Dealer Website
+                    <ExternalLink size={18} />
+                  </button>
+                )}
+                <Link
+                  href={searchBackUrl}
+                  className="w-full bg-foreground hover:opacity-90 text-background font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  Back to Search
+                </Link>
+              </div>
+              {car && (
+                <WhatsAppContactModal
+                  open={whatsappModalOpen}
+                  onClose={() => setWhatsappModalOpen(false)}
+                  car={car}
+                />
+              )}
+              {car?.images && car.images.length > 0 && galleryOpen && (
+                <ImageGalleryModal
+                  images={car.images}
+                  initialIndex={selectedImageIndex}
+                  onClose={() => setGalleryOpen(false)}
+                  title={`${car.brand} ${car.model}`}
+                />
+              )}
 
                 {/* Quick Info Card */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                  <h4 className="font-semibold text-gray-900 mb-3">Quick Summary</h4>
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 md:p-6">
+                  <h4 className="font-semibold text-foreground mb-3">Quick Summary</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Price:</span>
-                      <span className="font-semibold text-gray-900">{formatPrice(car.price, car.currency)}</span>
+                      <span className="text-muted-foreground">Price:</span>
+                      <span className="font-semibold text-foreground">{formatPrice(car.price, car.currency)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Year:</span>
-                      <span className="font-semibold text-gray-900">{car.year}</span>
+                      <span className="text-muted-foreground">Year:</span>
+                      <span className="font-semibold text-foreground">{car.year}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Mileage:</span>
-                      <span className="font-semibold text-gray-900">{formatMileage(car.mileage)} km</span>
+                      <span className="text-muted-foreground">KM Driven:</span>
+                      <span className="font-semibold text-foreground">{formatMileage(car.mileage)} km</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Status:</span>
+                      <span className="text-muted-foreground">Status:</span>
                       <span className={`font-semibold ${car.isAvailable ? 'text-green-600' : 'text-red-600'}`}>
                         {car.isAvailable ? 'Available' : 'Not Available'}
                       </span>
@@ -396,9 +526,9 @@ function CarDetailsContent() {
 export default function CarDetailsPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-background">
         <div className="flex items-center justify-center py-20">
-          <Loader2 size={48} className="animate-spin text-[#ED264F]" />
+          <Loader2 size={48} className="animate-spin text-primary" />
         </div>
       </main>
     }>

@@ -10,7 +10,7 @@ const faqs = [
   },
   {
     question: "How can I find the best deals on used cars?",
-    answer: "Use our search filters to sort by price, year, mileage, or location. The 'Best Deals' section shows cars sorted by lowest price first. You can also set up price alerts to get notified when cars matching your criteria become available.",
+    answer: "Use our search filters to sort by price, year, KM driven, or location. The 'Best Deals' section shows cars sorted by lowest price first. You can also set up price alerts to get notified when cars matching your criteria become available.",
   },
   {
     question: "Are all listings verified?",
@@ -26,7 +26,7 @@ const faqs = [
   },
   {
     question: "How do I search for a specific car?",
-    answer: "You can use the search form to enter brand, model, and year. All fields are optional - if you leave them blank, you'll see all available cars. You can then use filters to narrow down your search by price, mileage, location, fuel type, and more.",
+    answer: "You can use the search form to enter brand, model, and year. All fields are optional - if you leave them blank, you'll see all available cars. You can then use filters to narrow down your search by price, KM driven, location, fuel type, and more.",
   },
   {
     question: "Can I filter cars by location?",
@@ -55,8 +55,8 @@ function FAQItem({
 }) {
   return (
     <div
-      className={`bg-white rounded-xl border-2 overflow-hidden transition-all hover:border-[#ED264F]/50 ${
-        isOpen ? "border-[#ED264F]/50" : "border-gray-200"
+      className={`bg-card rounded-xl border-2 overflow-hidden transition-all hover:border-primary/50 ${
+        isOpen ? "border-primary/50" : "border-border"
       }`}
     >
       <button
@@ -66,19 +66,19 @@ function FAQItem({
           e.stopPropagation()
           onToggle()
         }}
-        className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors rounded-xl"
+        className="w-full px-4 sm:px-6 py-5 flex items-center justify-between text-left hover:bg-muted/50 transition-colors rounded-xl"
         aria-expanded={isOpen}
       >
-        <span className="font-semibold text-gray-900 pr-4 flex-1">{faq.question}</span>
+        <span className="font-semibold text-foreground pr-4 flex-1">{faq.question}</span>
         <ChevronDown
           size={24}
-          className={`text-gray-500 flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className={`text-muted-foreground flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
       {isOpen && (
-        <div className="px-6 pb-5 pt-0">
-          <div className="pt-4 border-t border-gray-200">
-            <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+        <div className="px-4 sm:px-6 pb-5 pt-0">
+          <div className="pt-4 border-t border-border">
+            <p className="text-foreground/90 leading-relaxed">{faq.answer}</p>
           </div>
         </div>
       )}
@@ -94,13 +94,13 @@ export default function FAQSection() {
   }
 
   return (
-    <section id="faq" className="bg-gray-50 py-16 md:py-20">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+    <section id="faq" className="bg-muted/50 py-12 md:py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-base md:text-lg text-muted-foreground">
             Everything you need to know about using Car Atlas
           </p>
         </div>

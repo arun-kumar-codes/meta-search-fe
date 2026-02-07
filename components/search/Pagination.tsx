@@ -67,30 +67,28 @@ export default function Pagination({ currentPage, totalPages, total, limit }: Pa
   const endItem = Math.min(currentPage * limit, total)
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-8 pt-8 border-t border-gray-200">
-      <div className="text-sm text-gray-600">
-        Showing <span className="font-bold text-gray-900">{startItem}</span> to{" "}
-        <span className="font-bold text-gray-900">{endItem}</span> of{" "}
-        <span className="font-bold text-gray-900">{total}</span> results
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-border">
+      <div className="text-sm text-muted-foreground order-2 sm:order-1 text-center sm:text-left">
+        Showing <span className="font-bold text-foreground">{startItem}</span> to{" "}
+        <span className="font-bold text-foreground">{endItem}</span> of{" "}
+        <span className="font-bold text-foreground">{total}</span> results
       </div>
 
-      <div className="flex items-center gap-2">
-        {/* Previous Button */}
+      <div className="flex flex-wrap items-center justify-center gap-2 order-1 sm:order-2">
         <button
           onClick={() => updatePage(currentPage - 1)}
           disabled={currentPage === 1}
-          className="px-4 py-2 border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-[#ED264F] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 transition-all flex items-center gap-1 font-semibold text-gray-700 hover:text-[#ED264F]"
+          className="px-3 sm:px-4 py-2 border-2 border-border rounded-xl hover:bg-muted hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-border transition-all flex items-center gap-1 font-semibold text-foreground hover:text-primary"
         >
           <ChevronLeft size={18} />
           <span className="hidden sm:inline">Previous</span>
         </button>
 
-        {/* Page Numbers */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {getPageNumbers().map((page, index) => {
             if (page === "...") {
               return (
-                <span key={`ellipsis-${index}`} className="px-3 text-gray-400 font-semibold">
+                <span key={`ellipsis-${index}`} className="px-2 sm:px-3 text-muted-foreground font-semibold">
                   ...
                 </span>
               )
@@ -103,10 +101,10 @@ export default function Pagination({ currentPage, totalPages, total, limit }: Pa
               <button
                 key={pageNum}
                 onClick={() => updatePage(pageNum)}
-                className={`px-4 py-2 rounded-xl transition-all font-semibold ${
+                className={`min-w-[2.5rem] sm:min-w-0 px-3 sm:px-4 py-2 rounded-xl transition-all font-semibold ${
                   isActive
-                    ? "bg-gradient-to-r from-[#ED264F] to-[#FF6B9D] text-white shadow-md hover:shadow-lg transform hover:scale-105"
-                    : "border-2 border-gray-300 hover:border-[#ED264F] hover:bg-gray-50 text-gray-700 hover:text-[#ED264F]"
+                    ? "bg-primary text-primary-foreground shadow-md hover:opacity-90"
+                    : "border-2 border-border hover:border-primary hover:bg-primary/5 text-foreground hover:text-primary"
                 }`}
               >
                 {pageNum}
@@ -115,11 +113,10 @@ export default function Pagination({ currentPage, totalPages, total, limit }: Pa
           })}
         </div>
 
-        {/* Next Button */}
         <button
           onClick={() => updatePage(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="px-4 py-2 border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-[#ED264F] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-300 transition-all flex items-center gap-1 font-semibold text-gray-700 hover:text-[#ED264F]"
+          className="px-3 sm:px-4 py-2 border-2 border-border rounded-xl hover:bg-muted hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:border-border transition-all flex items-center gap-1 font-semibold text-foreground hover:text-primary"
         >
           <span className="hidden sm:inline">Next</span>
           <ChevronRight size={18} />

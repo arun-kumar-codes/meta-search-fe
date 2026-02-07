@@ -7,7 +7,7 @@ import FAQSection from "@/components/public/FAQSection"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-background">
       {/* Hero Section with Search */}
       <Hero />
       

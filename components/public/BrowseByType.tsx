@@ -51,16 +51,16 @@ export default function BrowseByType() {
   }
 
   return (
-    <section className="bg-gray-50 py-16 md:py-20">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="text-center mb-12">
+    <section className="bg-muted/50 py-12 md:py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="text-center mb-8 md:mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Car size={32} className="text-[#ED264F]" />
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+            <Car size={32} className="text-primary shrink-0" />
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
               Browse by Car Type
             </h2>
           </div>
-          <p className="text-lg text-gray-600">
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Explore cars by body type and find the perfect match for your needs
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function BrowseByType() {
               <button
                 key={carType.name}
                 onClick={() => handleBodyTypeClick(carType.name)}
-                className="group relative overflow-hidden rounded-xl bg-white shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex-shrink-0"
+                className="group relative overflow-hidden rounded-xl bg-card border border-border shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-300 flex-shrink-0"
                 style={{ width: '200px', minWidth: '200px' }}
               >
                 {/* Image with overlay - similar to MostPopularCars */}
@@ -100,7 +100,7 @@ export default function BrowseByType() {
             {/* View All Button at the end */}
             <Link
               href="/search"
-              className="flex-shrink-0 flex items-center justify-center gap-2 px-6 md:px-8 py-4 bg-gradient-to-r from-[#ED264F] to-[#FF6B9D] text-white rounded-xl font-semibold hover:shadow-xl transition-all transform hover:scale-105 h-40 md:h-48 w-40 md:w-48"
+              className="flex-shrink-0 flex items-center justify-center gap-2 px-6 md:px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition-all h-40 md:h-48 w-40 md:w-48"
             >
               <div className="text-center">
                 <ArrowRight size={24} className="mx-auto mb-2" />

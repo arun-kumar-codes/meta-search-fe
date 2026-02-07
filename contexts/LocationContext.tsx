@@ -123,23 +123,23 @@ export function LocationProvider({ children }: LocationProviderProps) {
       {/* Location Permission Prompt */}
       {showPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-scale-in">
+          <div className="bg-card rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-scale-in border border-border">
             <div className="flex items-start gap-4 mb-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#ED264F]/10 flex items-center justify-center">
-                <MapPin size={24} className="text-[#ED264F]" />
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <MapPin size={24} className="text-primary" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl font-bold text-foreground mb-2">
                   Enable Location Access
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed">
                   We need your location to show you cars available in your area. 
                   Your location data is only used to filter search results and is never shared.
                 </p>
               </div>
               <button
                 onClick={handleDeny}
-                className="flex-shrink-0 p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                className="flex-shrink-0 p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Close"
               >
                 <X size={18} />
@@ -149,14 +149,14 @@ export function LocationProvider({ children }: LocationProviderProps) {
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <button
                 onClick={handleDeny}
-                className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-300 hover:border-gray-400 font-semibold text-gray-700 transition-all"
+                className="flex-1 px-4 py-3 rounded-xl border-2 border-border hover:bg-muted font-semibold text-foreground transition-all"
               >
                 Skip for Now
               </button>
               <button
                 onClick={handleAllow}
                 disabled={loading}
-                className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-[#ED264F] to-[#FF6B9D] hover:from-[#ED264F]/90 hover:to-[#FF6B9D]/90 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-white transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 rounded-xl bg-primary hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-primary-foreground transition-all shadow-md flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -169,7 +169,7 @@ export function LocationProvider({ children }: LocationProviderProps) {
               </button>
             </div>
             
-            <p className="text-xs text-gray-500 mt-4 text-center">
+            <p className="text-xs text-muted-foreground mt-4 text-center">
               You can change this later in your browser settings
             </p>
           </div>
