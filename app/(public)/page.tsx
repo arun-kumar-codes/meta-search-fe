@@ -8,7 +8,7 @@ import FAQSection from "@/components/public/FAQSection"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-full bg-background">
       <Hero />
       <TraditionalSearch />
       <AtlasFeatures />

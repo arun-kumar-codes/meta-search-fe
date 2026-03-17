@@ -55,10 +55,10 @@ export default function TraditionalSearch() {
           <span className="inline-block mb-3 px-4 py-1.5 text-sm font-medium rounded-full border border-[var(--atlas-cyan)] text-[var(--atlas-navy)]">
             Prefer Manual Search?
           </span>
-          <h2 className="text-3xl font-bold text-[var(--atlas-navy)] mb-3">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-3">
             Or Search Used Cars Manually
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
             Use traditional filters to search all used car dealers. Chat with Atlas to search everything in one conversation!
           </p>
         </div>

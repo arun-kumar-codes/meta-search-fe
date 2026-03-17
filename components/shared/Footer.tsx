@@ -19,7 +19,8 @@ export default function Footer() {
               <Image src="/logos/caratlas-full.png" alt="CarAtlas" width={140} height={40} className="h-8 w-auto brightness-0 invert" />
             </div>
             <p className="text-sm mb-4">
-              Meet Atlas — India&apos;s first AI-powered used car shopping assistant. Search all used cars from 1000+ dealers in one place. Finding your perfect used car is now as simple as having a conversation.
+              <span className="hidden sm:inline">Meet Atlas — India&apos;s first AI-powered used car shopping assistant. Search all used cars from 1000+ dealers in one place.</span>
+              <span className="sm:hidden">AI-powered used car search. 1000+ dealers, one place.</span>
             </p>
             <div className="flex gap-3">
               <a href="#" onClick={handlePlaceholderClick} className="size-8 rounded-full flex items-center justify-center transition-colors bg-[var(--atlas-cyan)]/20 hover:bg-[var(--atlas-cyan)]" aria-label="Facebook">
@@ -42,7 +43,6 @@ export default function Footer() {
             <h3 className="font-semibold text-white mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/search" className="hover:text-[var(--atlas-cyan)] transition-colors">Buy Used Cars</Link></li>
-              <li><Link href="/search" className="hover:text-[var(--atlas-cyan)] transition-colors">Sell Your Car</Link></li>
               <li><Link href="/search" className="hover:text-[var(--atlas-cyan)] transition-colors">Compare Used Cars</Link></li>
               <li><Link href="/#how-it-works" className="hover:text-[var(--atlas-cyan)] transition-colors">How It Works</Link></li>
               <li><a href="#" onClick={handlePlaceholderClick} className="hover:text-[var(--atlas-cyan)] transition-colors cursor-pointer">Dealer Login</a></li>

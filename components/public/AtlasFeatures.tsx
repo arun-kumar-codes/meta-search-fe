@@ -12,7 +12,6 @@ import {
   Users,
   Award,
   Clock,
-  CheckCircle,
 } from "lucide-react"
 import { motion } from "motion/react"
 
@@ -55,29 +54,28 @@ const additionalFeatures = [
   { icon: Users, title: "Family-Friendly", description: "Atlas considers your entire family's needs when suggesting used cars" },
   { icon: Award, title: "Expert Knowledge", description: "Trained on millions of used car transactions and market data across India" },
   { icon: Clock, title: "24/7 Available", description: "Atlas never sleeps - get used car help anytime, anywhere, on any device" },
-  { icon: CheckCircle, title: "End-to-End Support", description: "From search to test drive to paperwork - Atlas helps at every step" },
 ]
 
 export default function AtlasFeatures() {
   return (
     <motion.section
       id="about"
-      className="py-20 bg-gradient-to-b from-white via-gray-50 to-white"
+      className="py-12 md:py-20 bg-gradient-to-b from-white via-gray-50 to-white"
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.5 }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <span className="inline-flex items-center gap-1.5 mb-4 px-4 py-1.5 text-sm font-medium rounded-full bg-[var(--atlas-cyan)]/10 text-[var(--atlas-cyan)] border border-[var(--atlas-cyan)]/30">
             <Compass className="size-3.5" />
             Powered by Atlas AI
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-4">
             Why Atlas Is Different
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-3xl mx-auto">
             Atlas isn&apos;t just a search tool. It&apos;s an intelligent guide that searches ALL used car listings across India in one place - understanding you, learning from you, and finding your perfect used car.
           </p>
         </div>
@@ -93,7 +91,7 @@ export default function AtlasFeatures() {
               >
                 <feature.icon className="size-8 text-white" />
               </div>
-              <h3 className="font-bold text-xl text-[var(--atlas-navy)] mb-3">
+              <h3 className="text-base font-bold text-[var(--atlas-navy)] mb-3">
                 {feature.title}
               </h3>
               <p className="text-sm text-gray-600 leading-relaxed">
@@ -104,7 +102,7 @@ export default function AtlasFeatures() {
         </div>
 
         <div className="rounded-3xl border-2 border-[var(--atlas-cyan)]/30 p-8 shadow-xl bg-card">
-          <h3 className="text-2xl font-bold text-[var(--atlas-navy)] mb-6 text-center">
+          <h3 className="text-xl font-bold text-[var(--atlas-navy)] mb-6 text-center">
             Everything Atlas Can Do For You
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -127,10 +125,11 @@ export default function AtlasFeatures() {
         </div>
 
         <div
-          className="mt-16 rounded-3xl p-12 text-white relative overflow-hidden"
+          className="mt-16 rounded-3xl p-12 text-white relative overflow-hidden hidden"
           style={{
             background: "linear-gradient(to right, var(--atlas-navy), var(--atlas-cyan))",
           }}
+          aria-hidden="true"
         >
           <div className="absolute inset-0 opacity-10 pointer-events-none">
             <div

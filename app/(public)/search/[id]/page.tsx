@@ -3,14 +3,14 @@
 import { useEffect, useState, Suspense } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import { searchAPI, usersAPI, type CarListing } from "@/lib/api"
-import { 
-  MapPin, 
-  Calendar, 
-  Gauge, 
-  Fuel, 
-  Settings2, 
-  ExternalLink, 
-  Building2, 
+import {
+  MapPin,
+  Calendar,
+  Gauge,
+  Fuel,
+  Settings2,
+  ExternalLink,
+  Building2,
   Globe,
   Loader2,
   ArrowLeft,
@@ -18,7 +18,8 @@ import {
   XCircle,
   Image as ImageIcon,
   MessageCircle,
-  Heart
+  Heart,
+  Lock,
 } from "lucide-react"
 import Link from "next/link"
 import { useUser } from "@/contexts/UserContext"
@@ -26,13 +27,15 @@ import { useLocation } from "@/contexts/LocationContext"
 import { getCachedLocation } from "@/lib/location"
 import WhatsAppContactModal from "@/components/shared/WhatsAppContactModal"
 import ImageGalleryModal from "@/components/shared/ImageGalleryModal"
+import UserLoginModal from "@/components/user/UserLoginModal"
 
 function CarDetailsContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const listingId = params.id as string
-  const { user } = useUser()
+  const { user, isLoading: userLoading } = useUser()
   const { location } = useLocation()
+  const [loginModalOpen, setLoginModalOpen] = useState(false)
   const searchBackUrl = (() => {
     const fromCity = searchParams.get("from_city")
     const city = fromCity || location?.city || getCachedLocation()?.city || "Delhi"
@@ -47,6 +50,54 @@ function CarDetailsContent() {
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false)
   const [inWishlist, setInWishlist] = useState(false)
   const [wishlistLoading, setWishlistLoading] = useState(false)
+
+  if (userLoading) {
+    return (
+      <main className="min-h-screen bg-background">
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <Loader2 size={48} className="animate-spin text-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
+  if (!user) {
+    return (
+      <main className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-12">
+          <Link
+            href={searchBackUrl}
+            className="inline-flex items-center gap-2 text-primary hover:opacity-80 mb-6"
+          >
+            <ArrowLeft size={20} />
+            <span>Back to Search</span>
+          </Link>
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+            <div className="rounded-full bg-muted p-6 mb-6">
+              <Lock size={48} className="text-muted-foreground" />
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              Log in to view car details
+            </h1>
+            <p className="text-muted-foreground mb-8 max-w-md">
+              Sign in with your phone number to see full listing details, contact the dealer, and save cars to your wishlist.
+            </p>
+            <button
+              type="button"
+              onClick={() => setLoginModalOpen(true)}
+              className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90"
+            >
+              Log in
+            </button>
+          </div>
+        </div>
+        <UserLoginModal open={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
+      </main>
+    )
+  }
 
   useEffect(() => {
     if (listingId) {

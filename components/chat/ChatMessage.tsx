@@ -13,6 +13,8 @@ export interface ChatMessageData {
 interface ChatMessageProps {
   message: ChatMessageData
   inlineStyle?: boolean
+  /** Shorter content shown only on mobile when inline */
+  welcomeShort?: string
 }
 
 function formatMessageText(text: string, isUser: boolean) {
@@ -33,8 +35,16 @@ function formatMessageText(text: string, isUser: boolean) {
     })
 }
 
-export default function ChatMessage({ message, inlineStyle }: ChatMessageProps) {
+export default function ChatMessage({ message, inlineStyle, welcomeShort }: ChatMessageProps) {
   const isUser = message.role === "user"
+  const content = welcomeShort != null ? (
+    <>
+      <span className="sm:hidden">{formatMessageText(welcomeShort, isUser)}</span>
+      <span className="hidden sm:inline">{formatMessageText(message.content, isUser)}</span>
+    </>
+  ) : (
+    formatMessageText(message.content, isUser)
+  )
 
   if (inlineStyle) {
     return (
@@ -45,9 +55,9 @@ export default function ChatMessage({ message, inlineStyle }: ChatMessageProps) 
               <Compass className="size-4 text-white" />
             </div>
           )}
-          <div className={`max-w-[80%] rounded-2xl px-5 py-3.5 ${isUser ? "bg-[var(--atlas-cyan)] text-white shadow-lg" : "bg-white shadow-md border-2 border-gray-100"}`}>
+          <div className={`max-w-[85%] sm:max-w-[80%] rounded-2xl px-3 py-2.5 sm:px-5 sm:py-3.5 ${isUser ? "bg-[var(--atlas-cyan)] text-white shadow-lg" : "bg-white shadow-md border-2 border-gray-100"}`}>
             <p className="text-sm whitespace-pre-line leading-relaxed">
-              {formatMessageText(message.content, isUser)}
+              {content}
             </p>
           </div>
         </div>

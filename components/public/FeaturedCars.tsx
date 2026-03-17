@@ -84,10 +84,10 @@ export default function FeaturedCars() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-[var(--atlas-navy)] mb-2">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-2">
               Featured Used Cars
             </h2>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600">
               Top used car picks from verified dealers across India
             </p>
           </div>

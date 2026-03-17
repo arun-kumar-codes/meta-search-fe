@@ -3,13 +3,15 @@
 import { Compass, Sparkles, Brain, MapPin } from "lucide-react"
 import { motion } from "motion/react"
 import ChatPanel from "@/components/chat/ChatPanel"
+import { heroConfig } from "@/lib/hero-config"
 
 export default function Hero() {
+  const { assistantName, tagline, badge, headline, headlineAccent, descriptionShort, descriptionFull, features, socialProof } = heroConfig
   return (
     <>
       <motion.section
         id="chat"
-        className="relative overflow-hidden py-16 md:py-20"
+        className="relative overflow-hidden py-2 sm:py-12 md:py-20 min-h-[80vh] max-sm:min-h-0"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -30,131 +32,113 @@ export default function Hero() {
         <div className="absolute top-20 left-10 w-72 h-72 rounded-full blur-3xl opacity-20 animate-pulse" style={{ backgroundColor: "var(--atlas-cyan)" }} />
         <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full blur-3xl opacity-20 animate-pulse" style={{ backgroundColor: "var(--atlas-cyan)", animationDelay: "1s" }} />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Left: Atlas branding and copy */}
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8 relative z-10 max-sm:px-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-12 items-start">
+            {/* Left: Atlas branding and copy (full on desktop, trimmed on mobile) */}
             <motion.div
-              className="text-white pt-4 lg:pt-8"
+              className="text-white pt-0 sm:pt-4 lg:pt-8 max-sm:pb-0"
               initial={{ opacity: 0, x: -24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.15 }}
             >
-              <div className="mb-8 flex items-center gap-4">
-                <div className="relative">
+              <div className="mb-2 sm:mb-6 flex items-center gap-3 sm:gap-4">
+                <div className="relative shrink-0">
                   <div
-                    className="size-20 rounded-2xl flex items-center justify-center shadow-2xl"
+                    className="size-12 sm:size-16 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-2xl"
                     style={{ backgroundColor: "var(--atlas-cyan)" }}
                   >
-                    <Compass className="size-10 text-white" />
+                    <Compass className="size-7 sm:size-9 text-white" />
                   </div>
                   <div
-                    className="absolute -bottom-1 -right-1 size-7 rounded-full border-4 flex items-center justify-center"
+                    className="absolute -bottom-0.5 -right-0.5 size-5 sm:size-7 rounded-full border-2 sm:border-4 flex items-center justify-center"
                     style={{ backgroundColor: "var(--atlas-green)", borderColor: "var(--atlas-navy)" }}
                   >
-                    <Sparkles className="size-4 text-white" />
+                    <Sparkles className="size-3 sm:size-4 text-white" />
                   </div>
                 </div>
-                <div>
-                  <h1 className="text-4xl font-bold mb-1">Meet Atlas</h1>
-                  <p className="text-lg" style={{ color: "var(--atlas-cyan)" }}>
-                    Your AI Car Shopping Guide
+                <div className="min-w-0  mb-6">
+                  <h1 className="text-2xl sm:text-3xl mt-6 md:text-5xl font-bold mb-0.5 sm:mb-1  leading-tight">Meet {assistantName}</h1>
+                  <p className="text-sm sm:text-base md:text-xl" style={{ color: "var(--atlas-cyan)" }}>
+                    {tagline}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-6 mb-8">
-                <span
-                  className="inline-block mb-4 text-sm px-4 py-1.5 rounded-full border"
-                  style={{ backgroundColor: "rgba(0,191,255,0.2)", color: "var(--atlas-cyan)", borderColor: "rgba(0,191,255,0.3)" }}
-                >
-                  🇮🇳 India&apos;s First AI Used Car Shopping Assistant
-                </span>
+              <div className="space-y-2 sm:space-y-5 mb-2 sm:mb-6">
+                {/* Mobile: compact headline (desktop headline below stays richer) */}
+                <div className="sm:hidden">
+                  <h2 className="text-lg font-bold leading-snug">
+                    {headline}{" "}
+                    <span style={{ color: "var(--atlas-cyan)" }}>{headlineAccent}</span>
+                  </h2>
+                </div>
+                {/* Badge + heading: hide on very small screens */}
+                <div className="hidden sm:block">
+                  {badge && (
+                    <span
+                      className="inline-block mb-3 text-sm px-4 py-1.5 rounded-full border"
+                      style={{ backgroundColor: "rgba(0,191,255,0.2)", color: "var(--atlas-cyan)", borderColor: "rgba(0,191,255,0.3)" }}
+                    >
+                      {badge}
+                    </span>
+                  )}
 
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                  Search All Used Cars
-                  <span className="block" style={{ color: "var(--atlas-cyan)" }}>
-                    In One Place.
-                  </span>
-                </h2>
+                  <h2 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-4 leading-tight">
+                    {headline}
+                    <span className="block" style={{ color: "var(--atlas-cyan)" }}>
+                      {headlineAccent}
+                    </span>
+                  </h2>
+                </div>
 
-                <p className="text-xl text-gray-300 leading-relaxed">
-                  Atlas searches through 50,000+ verified used cars across 1000+ dealers — all in one conversation. No more jumping between websites. Just chat with Atlas.
+                {/* Short copy on mobile, full copy on desktop */}
+                <p className="text-sm sm:text-base md:text-xl text-gray-300 leading-snug sm:leading-relaxed max-w-xl max-sm:line-clamp-2">
+                  <span className="sm:hidden">{descriptionShort}</span>
+                  <span className="hidden sm:inline">{descriptionFull}</span>
                 </p>
 
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="rounded-xl p-4 border backdrop-blur-sm" style={{ backgroundColor: "rgba(255,255,255,0.1)", borderColor: "rgba(0,191,255,0.3)" }}>
-                    <div className="text-3xl font-bold mb-1" style={{ color: "var(--atlas-cyan)" }}>2.5min</div>
-                    <div className="text-sm text-gray-300">Avg. search time</div>
-                  </div>
-                  <div className="rounded-xl p-4 border backdrop-blur-sm" style={{ backgroundColor: "rgba(255,255,255,0.1)", borderColor: "rgba(0,191,255,0.3)" }}>
-                    <div className="text-3xl font-bold mb-1" style={{ color: "var(--atlas-cyan)" }}>₹45K</div>
-                    <div className="text-sm text-gray-300">Avg. savings</div>
-                  </div>
-                  <div className="rounded-xl p-4 border backdrop-blur-sm" style={{ backgroundColor: "rgba(255,255,255,0.1)", borderColor: "rgba(0,191,255,0.3)" }}>
-                    <div className="text-3xl font-bold mb-1" style={{ color: "var(--atlas-cyan)" }}>98%</div>
-                    <div className="text-sm text-gray-300">Satisfaction</div>
-                  </div>
-                </div>
-
-                {/* Features */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(0,191,255,0.2)" }}>
-                      <Brain className="size-5" style={{ color: "var(--atlas-cyan)" }} />
-                    </div>
-                    <div>
-                      <div className="font-semibold">Learns Your Preferences</div>
-                      <div className="text-sm text-gray-300">Gets smarter with every conversation</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(0,191,255,0.2)" }}>
-                      <MapPin className="size-5" style={{ color: "var(--atlas-cyan)" }} />
-                    </div>
-                    <div>
-                      <div className="font-semibold">Finds Local Deals</div>
-                      <div className="text-sm text-gray-300">Searches 1000+ dealers in your city</div>
-                    </div>
-                  </div>
-                </div>
+                {/* Stats + features: hide on mobile to keep chat dominant */}
+              
               </div>
 
-              <div className="flex items-center gap-6 pt-6 border-t border-white/20">
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-2">
-                    {["A", "R", "P", "S"].map((letter, i) => (
-                      <div
-                        key={i}
-                        className="size-8 rounded-full border-2 flex items-center justify-center text-xs font-bold"
-                        style={{ backgroundColor: "var(--atlas-cyan)", borderColor: "var(--atlas-navy)" }}
-                      >
-                        {letter}
+              {/* Social proof: hide on mobile; only show if configured */}
+              {socialProof && (
+                <div className="hidden sm:flex items-center gap-6 pt-4 border-t border-white/20">
+                  <div className="flex items-center gap-2">
+                    {socialProof.avatarLetters && socialProof.avatarLetters.length > 0 && (
+                      <div className="flex -space-x-2">
+                        {socialProof.avatarLetters.map((letter, i) => (
+                          <div
+                            key={i}
+                            className="size-8 rounded-full border-2 flex items-center justify-center text-xs font-bold"
+                            style={{ backgroundColor: "var(--atlas-cyan)", borderColor: "var(--atlas-navy)" }}
+                          >
+                            {letter}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <div className="text-sm">
-                    <div className="font-semibold">15,000+ users</div>
-                    <div className="text-gray-300 text-xs">this month</div>
+                    )}
+                    <div className="text-sm">
+                      <div className="font-semibold">{socialProof.label}</div>
+                      <div className="text-gray-300 text-xs">{socialProof.sublabel}</div>
+                    </div>
                   </div>
                 </div>
-                <div className="w-px h-10 bg-white/20" />
-                <div className="text-sm">
-                  <div className="font-semibold">⭐ 4.9/5 Rating</div>
-                  <div className="text-gray-300 text-xs">from verified buyers</div>
-                </div>
-              </div>
+              )}
             </motion.div>
 
-            {/* Right: Chat panel — full column width, height aligned with left content */}
+            {/* Right: Chat panel — full width; mobile: compact height to fit nav + heading in one screen */}
             <motion.div
-              className="lg:pt-4 w-full flex flex-col min-h-[600px]"
+              className="lg:pt-4 w-full flex flex-col flex-1 min-h-[220px] max-h-[calc(100dvh-8rem)] max-sm:min-h-0 max-sm:h-[calc(100dvh-20rem)] sm:min-h-[480px] lg:min-h-[560px] lg:max-h-[600px]"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.25 }}
             >
-              <div className="rounded-2xl overflow-hidden shadow-2xl border-2 bg-card flex-1 min-h-[560px] w-full flex flex-col" style={{ borderColor: "rgba(0,191,255,0.5)" }}>
-                <ChatPanel className="w-full h-full min-h-0 !min-h-0 !max-h-none flex-1" inlineMode />
+              <div
+                className="rounded-2xl overflow-hidden shadow-2xl border-2 bg-card flex-1 min-h-0 w-full flex flex-col max-h-full"
+                style={{ borderColor: "rgba(0,191,255,0.5)" }}
+              >
+                <ChatPanel className="w-full h-full min-h-0 flex-1 max-h-full" inlineMode />
               </div>
             </motion.div>
           </div>

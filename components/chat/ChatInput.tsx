@@ -74,7 +74,7 @@ export default function ChatInput({ onSend, disabled, placeholder, inlineStyle }
             )}
           </button>
         </form>
-        <p className="text-xs text-center text-gray-500">
+        <p className="text-xs text-center text-gray-500 hidden sm:block">
           💬 Atlas responds in under 2 seconds • Powered by advanced AI
         </p>
       </div>

@@ -22,7 +22,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-[100] w-full bg-white border-b border-gray-200 shadow-sm">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-3 flex items-center justify-between">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 md:px-8 py-2 sm:py-3 flex items-center justify-between">
         <Link href="/" className="flex min-w-0 shrink items-center gap-3" onClick={() => setMobileOpen(false)}>
           <Image
             src="/logos/caratlas-full.png"
@@ -43,21 +43,21 @@ export default function Header() {
             <>
               {pathname === "/" ? (
                 <Link href="/#chat" className={navLinkClass}>
-                  Chat with Atlas
+                  <span className="hidden sm:inline">Chat with Atlas</span>
+                  <span className="sm:hidden">Chat</span>
                 </Link>
               ) : (
                 <button type="button" onClick={openChat} className={navLinkClass + " text-left"}>
-                  Chat with Atlas
+                  <span className="hidden sm:inline">Chat with Atlas</span>
+                  <span className="sm:hidden">Chat</span>
                 </button>
               )}
               <Link href="/search" className={navLinkClass}>
-                Buy Used Cars
-              </Link>
-              <Link href="/search" className={navLinkClass}>
-                Sell Your Car
+                <span className="hidden sm:inline">Buy Used Cars</span>
+                <span className="sm:hidden">Cars</span>
               </Link>
               <Link href="/#how-it-works" className={navLinkClass}>
-                How It Works
+                How it works
               </Link>
             </>
           )}
@@ -142,21 +142,18 @@ export default function Header() {
               <>
                 {pathname === "/" ? (
                   <Link href="/#chat" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                    Chat with Atlas
+                    Chat
                   </Link>
                 ) : (
                   <button type="button" onClick={() => { openChat(); setMobileOpen(false); }} className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100 text-left w-full">
-                    Chat with Atlas
+                    Chat
                   </button>
                 )}
                 <Link href="/search" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                  Buy Used Cars
-                </Link>
-                <Link href="/search" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                  Sell Your Car
+                  Cars
                 </Link>
                 <Link href="/#how-it-works" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                  How It Works
+                  How it works
                 </Link>
               </>
             )}

@@ -1,14 +1,8 @@
 /**
- * Chat API client for the car-search chatbot (e.g. clawdbot on VM).
- *
- * To connect your VM later:
- * 1. Set NEXT_PUBLIC_CHAT_API_URL to your VM chat URL (e.g. https://your-vm.com/chat).
- *    Or leave unset to use NEXT_PUBLIC_API_BASE_URL + "/chat" (e.g. your backend proxies to VM).
- * 2. VM must accept POST with body: { message: string, conversationId?: string, listingIds?: string[], city?: string }
- *    and return JSON: { reply: string, listings?: CarListing[], listingIds?: string[] }.
- * 3. If the chat server is on a different domain, enable CORS for your frontend origin.
- *
- * When the API is not available, a mock response is returned so the UI works.
+ * Chat API client for the Atlas car-search chatbot.
+ * Uses the backend POST /chat endpoint, which runs your own LLM via OpenRouter
+ * (set OPENROUTER_API_KEY in the backend .env). Request/response shape:
+ * POST { message, city?, listingIds?, conversationId? } -> { reply, listings?, listingIds? }.
  */
 
 import type { CarListing } from './api'
@@ -32,11 +26,18 @@ export interface ChatResponse {
   listingIds?: string[]
 }
 
+export interface ChatHistoryMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export interface SendMessageParams {
   message: string
   conversationId?: string
   listingIds?: string[]
   city?: string
+  /** Last N messages for context (e.g. up to 20). Sent to backend for LLM continuity. */
+  history?: ChatHistoryMessage[]
 }
 
 const MOCK_REPLY =
@@ -48,7 +49,7 @@ const MOCK_REPLY =
  * When you deploy your VM: set NEXT_PUBLIC_CHAT_API_URL to the VM chat URL and this will call it.
  */
 export async function sendChatMessage(params: SendMessageParams): Promise<ChatResponse> {
-  const { message, conversationId, listingIds, city } = params
+  const { message, conversationId, listingIds, city, history } = params
   const url = getChatEndpoint()
 
   try {
@@ -56,6 +57,7 @@ export async function sendChatMessage(params: SendMessageParams): Promise<ChatRe
     if (conversationId) body.conversationId = conversationId
     if (listingIds?.length) body.listingIds = listingIds
     if (city) body.city = city
+    if (history?.length) body.history = history
 
     const res = await fetch(url, {
       method: 'POST',

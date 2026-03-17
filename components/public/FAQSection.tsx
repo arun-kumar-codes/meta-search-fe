@@ -80,7 +80,7 @@ function FAQItem({
         className="w-full px-5 py-4 sm:px-6 sm:py-5 flex items-center justify-between gap-4 text-left transition-colors hover:bg-muted/30"
         aria-expanded={isOpen}
       >
-        <span className="font-semibold text-[var(--atlas-navy)] pr-2 flex-1">
+        <span className="text-base font-semibold text-[var(--atlas-navy)] pr-2 flex-1">
           {faq.question}
         </span>
         <motion.span
@@ -101,7 +101,7 @@ function FAQItem({
             className="overflow-hidden"
           >
             <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-0 border-t border-border">
-              <p className="text-foreground/90 leading-relaxed pt-4">
+              <p className="text-sm text-foreground/90 leading-relaxed pt-4">
                 {faq.answer}
               </p>
             </div>
@@ -123,7 +123,7 @@ export default function FAQSection() {
   return (
     <motion.section
       id="faq"
-      className="py-20 bg-gradient-to-b from-muted/50 to-background"
+      className="py-12 md:py-20 bg-gradient-to-b from-muted/50 to-background"
       aria-label="FAQ"
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -131,15 +131,15 @@ export default function FAQSection() {
       transition={{ duration: 0.5 }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <span className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 text-sm font-medium rounded-full bg-[var(--atlas-cyan)]/10 text-[var(--atlas-cyan)] border border-[var(--atlas-cyan)]/30">
             <HelpCircle className="size-4" />
             FAQ
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
             Everything you need to know about using Car Atlas
           </p>
         </div>

@@ -61,16 +61,16 @@ const testimonials = [
 
 export default function AtlasTestimonials() {
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-12 md:py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <span className="inline-block mb-4 px-4 py-1.5 text-sm font-medium rounded-full bg-[var(--atlas-green)]/20 text-[var(--atlas-green-dark)] border border-[var(--atlas-green)]/30">
             ⭐ Customer Success Stories
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-4">
             Real People, Real Results
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
             See how Atlas helped thousands of Indians find their perfect used car by searching all dealers in one place
           </p>
         </div>

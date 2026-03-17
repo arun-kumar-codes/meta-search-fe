@@ -2,16 +2,16 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Heart, Search, Settings } from "lucide-react"
+import { Home, Heart, Search, History } from "lucide-react"
 
 export default function UserSidebar() {
   const pathname = usePathname()
 
   const menuItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
-    { href: "/favorites", label: "Favorites", icon: Heart },
-    { href: "/saved-searches", label: "Saved Searches", icon: Search },
-    { href: "/settings", label: "Settings", icon: Settings },
+    { href: "/search", label: "Search", icon: Search },
+    { href: "/wishlist", label: "Wishlist", icon: Heart },
+    { href: "/history", label: "History", icon: History },
   ]
 
   return (

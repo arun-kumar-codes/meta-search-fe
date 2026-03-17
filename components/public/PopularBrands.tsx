@@ -73,10 +73,10 @@ export default function PopularBrands() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-[var(--atlas-navy)] mb-2">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-2">
             Browse Used Cars by Brand
           </h2>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600">
             Or chat with Atlas and tell it which brand you prefer — it will search all dealers for you
           </p>
         </div>

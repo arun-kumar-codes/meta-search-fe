@@ -38,22 +38,22 @@ export default function HowAtlasWorks() {
   return (
     <motion.section
       id="how-it-works"
-      className="py-20 bg-white"
+      className="py-12 md:py-20 bg-white"
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.5 }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <span className="inline-block mb-4 px-4 py-1.5 text-sm font-medium rounded-full bg-[var(--atlas-navy)]/10 text-[var(--atlas-navy)] border border-[var(--atlas-navy)]/30">
             <Compass className="size-3.5 inline mr-1.5" />
             Simple. Smart. Fast.
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-[var(--atlas-navy)] mb-4">
             How Atlas Works
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
             From first chat to driving home - Atlas guides you through the entire journey in just 4 simple steps
           </p>
         </div>
@@ -66,7 +66,7 @@ export default function HowAtlasWorks() {
                     <step.icon className="size-7 text-white" />
                   </div>
 
-                  <h3 className="font-bold text-xl text-[var(--atlas-navy)] mb-3">
+                  <h3 className="text-base font-bold text-[var(--atlas-navy)] mb-3">
                     {step.title}
                   </h3>
 
