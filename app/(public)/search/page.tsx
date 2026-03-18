@@ -8,7 +8,6 @@ import { searchAPI, SearchParams, CarListing, SearchResponse } from "@/lib/api"
 import { Loader2, Car, MapPin } from "lucide-react"
 import Pagination from "@/components/search/Pagination"
 import { useLocation } from "@/contexts/LocationContext"
-import ChatPanel from "@/components/chat/ChatPanel"
 import { useUser } from "@/contexts/UserContext"
 import { usersAPI } from "@/lib/api"
 
@@ -180,18 +179,12 @@ function SearchResultsContent() {
       <section className={loading ? "h-[100dvh] flex flex-col py-4 md:py-8" : "py-6 md:py-8"}>
         <div className={`max-w-7xl mx-auto px-4 sm:px-6 md:px-8 ${loading ? "flex-1 min-h-0 flex flex-col" : ""}`}>
           {loading && (
-            <div className="flex flex-col flex-1 min-h-0 lg:grid lg:grid-cols-2 gap-4 lg:gap-8 w-full">
-              {/* Chat first, taller */}
-              <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden flex-1 min-h-[360px] max-h-[70vh] sm:min-h-[420px] flex flex-col w-full order-1">
-                <ChatPanel className="flex-1 min-h-0 w-full max-h-full" inlineMode />
-              </div>
-              <div className="flex flex-col items-center justify-center rounded-xl bg-card border border-border p-4 sm:p-6 md:p-8 shrink-0 order-2">
-                <Loader2 size={40} className="animate-spin text-primary mb-2 sm:mb-4" />
-                <p className="text-muted-foreground text-sm sm:text-lg">
-                  <span className="sm:hidden">Searching...</span>
-                  <span className="hidden sm:inline">Searching for cars...</span>
-                </p>
-              </div>
+            <div className="w-full flex flex-col flex-1 min-h-0 items-center justify-center rounded-xl bg-card border border-border p-4 sm:p-6 md:p-8">
+              <Loader2 size={40} className="animate-spin text-primary mb-2 sm:mb-4" />
+              <p className="text-muted-foreground text-sm sm:text-lg">
+                <span className="sm:hidden">Searching...</span>
+                <span className="hidden sm:inline">Searching for cars...</span>
+              </p>
             </div>
           )}
 
