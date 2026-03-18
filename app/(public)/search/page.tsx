@@ -179,7 +179,7 @@ function SearchResultsContent() {
       <section className={loading ? "h-[100dvh] flex flex-col py-4 md:py-8" : "py-6 md:py-8"}>
         <div className={`max-w-7xl mx-auto px-4 sm:px-6 md:px-8 ${loading ? "flex-1 min-h-0 flex flex-col" : ""}`}>
           {loading && (
-            <div className="w-full flex flex-col flex-1 min-h-0 items-center justify-center rounded-xl bg-card border border-border p-4 sm:p-6 md:p-8">
+            <div className="w-full min-h-0 items-center justify-center rounded-xl bg-card border border-border p-4 sm:p-6 md:p-8">
               <Loader2 size={40} className="animate-spin text-primary mb-2 sm:mb-4" />
               <p className="text-muted-foreground text-sm sm:text-lg">
                 <span className="sm:hidden">Searching...</span>
