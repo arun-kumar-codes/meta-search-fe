@@ -11,22 +11,22 @@ import { useUser } from "@/contexts/UserContext"
 import UserLoginModal from "@/components/user/UserLoginModal"
 import { Compass, Sparkles, SlidersHorizontal } from "lucide-react"
 
-const GUEST_MESSAGE_LIMIT = Infinity
+const GUEST_MESSAGE_LIMIT = 5
 const CHAT_HISTORY_LIMIT = 20
 
 const WELCOME_MESSAGE: ChatMessageData = {
   role: "assistant",
   content:
-    "Hi! 👋 I can help you find the right car. Just ask in plain language, for example:\n\n" +
+    "Hi! 👋 I'm here to help you find the right car on this app. Ask in plain language, for example:\n\n" +
     "• **Show me Swift under 5 lakh in Mumbai**\n" +
     "• **Best diesel SUVs under 15 lakh**\n" +
     "• **Maruti Baleno in Delhi**\n\n" +
-    "I'll suggest matching cars, and you can tap any option to see full details.",
+    "I'll suggest matching cars, and you can tap any option to see full details. Your search uses your current location—you can change it anytime in the app.",
 };
 
 const WELCOME_MESSAGE_SHORT: ChatMessageData = {
   role: "assistant",
-  content: "Ask for a car in plain language, e.g. **Swift under 5 lakh** or **diesel SUVs under 15 lakh**. Tap any result for details.",
+  content: "Ask for a car in plain language (e.g. **Swift under 5 lakh** or **diesel SUVs under 15 lakh**). Location can be changed in the app. Tap any result for details.",
 };
 
 interface ChatPanelProps {
@@ -40,7 +40,7 @@ interface ChatPanelProps {
 export default function ChatPanel({ className, city: cityProp, contextListingIds, popupMode, inlineMode }: ChatPanelProps) {
   const { location } = useLocation()
   const { user } = useUser()
-  const city = cityProp ?? location?.city
+  const city = cityProp ?? location?.city ?? "Delhi"
   const [messages, setMessages] = useState<ChatMessageData[]>([WELCOME_MESSAGE])
   const [sending, setSending] = useState(false)
   const [loginModalOpen, setLoginModalOpen] = useState(false)
@@ -168,10 +168,15 @@ export default function ChatPanel({ className, city: cityProp, contextListingIds
         <div ref={messagesEndRef} />
       </div>
       <div className={`shrink-0 border-t-2 border-gray-100 bg-white ${inlineMode ? "p-3 sm:p-5" : "p-4 sm:p-5"}`}>
+        {!user && userMessageCount > 0 && !guestAtLimit && (
+          <p className="mb-2 text-xs text-muted-foreground">
+            {userMessageCount} of {GUEST_MESSAGE_LIMIT} free messages used. Log in for unlimited chat.
+          </p>
+        )}
         {guestAtLimit && (
           <div className="mb-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <p className="text-sm text-amber-800">
-              You’ve used {GUEST_MESSAGE_LIMIT} free messages. Log in to keep chatting.
+              You’ve used your {GUEST_MESSAGE_LIMIT} free messages. Log in to keep chatting.
             </p>
             <button
               type="button"

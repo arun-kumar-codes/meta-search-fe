@@ -23,7 +23,7 @@ export default function ChatPopup() {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-0 sm:p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Chat with car agent"
@@ -37,7 +37,7 @@ export default function ChatPopup() {
       />
 
       {/* Popup: full screen on mobile, large modal on desktop */}
-      <div className="relative w-full h-full sm:h-[85vh] sm:max-h-[800px] sm:max-w-2xl sm:rounded-2xl bg-card border border-border shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative w-full h-[82dvh] sm:h-[85vh] sm:max-h-[800px] sm:max-w-2xl sm:rounded-2xl bg-card border border-border shadow-2xl flex flex-col overflow-hidden">
         <div className="flex items-center justify-between shrink-0 px-4 py-3 border-b border-border bg-muted/50">
           <h2 className="text-lg font-semibold text-foreground">Chat with our agent</h2>
           <button

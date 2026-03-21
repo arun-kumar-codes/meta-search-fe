@@ -132,53 +132,127 @@ export default function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white px-4 py-4">
-          <nav className="flex flex-col gap-1">
-            {isSearchPage ? (
-              <Link href="/" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                Dashboard
-              </Link>
-            ) : (
-              <>
-                {pathname === "/" ? (
-                  <Link href="/#chat" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                    Chat
-                  </Link>
-                ) : (
-                  <button type="button" onClick={() => { openChat(); setMobileOpen(false); }} className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100 text-left w-full">
-                    Chat
-                  </button>
-                )}
-                <Link href="/search" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                  Cars
-                </Link>
-                <Link href="/#how-it-works" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                  How it works
-                </Link>
-              </>
-            )}
-            <Link href="/wishlist" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100 flex items-center gap-2" onClick={() => setMobileOpen(false)}>
-              <Heart size={18} /> Wishlist
-            </Link>
-            {user ? (
-              <>
-                <Link href="/history" className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100" onClick={() => setMobileOpen(false)}>
-                  History
-                </Link>
-                <button type="button" onClick={() => { logout(); setMobileOpen(false); }} className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100 text-left w-full">
-                  Logout
+        <div className="md:hidden fixed inset-0 z-[110]">
+          {/* Backdrop */}
+          <button
+            type="button"
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          />
+
+          {/* Side drawer */}
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            className="absolute left-0 top-0 h-full w-[86%] max-w-[320px] bg-white border-r border-gray-200 shadow-lg overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-4 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-900">Menu</span>
+                <button
+                  type="button"
+                  onClick={() => setMobileOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  aria-label="Close menu"
+                >
+                  <X size={20} />
                 </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={() => { setLoginModalOpen(true); setMobileOpen(false); }}
-                className="mt-2 mx-4 py-3 rounded-lg border-2 border-[var(--atlas-cyan)] text-[var(--atlas-navy)] font-bold text-center hover:bg-[var(--atlas-cyan)] hover:text-white transition-colors w-[calc(100%-2rem)]"
+              </div>
+            </div>
+
+            <nav className="flex flex-col gap-1 p-2">
+              {isSearchPage ? (
+                <Link
+                  href="/"
+                  className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  {pathname === "/" ? (
+                    <Link
+                      href="/#chat"
+                      className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      Chat
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        openChat()
+                        setMobileOpen(false)
+                      }}
+                      className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100 text-left w-full"
+                    >
+                      Chat
+                    </button>
+                  )}
+                  <Link
+                    href="/search"
+                    className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Cars
+                  </Link>
+                  <Link
+                    href="/#how-it-works"
+                    className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    How it works
+                  </Link>
+                </>
+              )}
+
+              <Link
+                href="/wishlist"
+                className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100 flex items-center gap-2"
+                onClick={() => setMobileOpen(false)}
               >
-                Sign In
-              </button>
-            )}
-          </nav>
+                <Heart size={18} /> Wishlist
+              </Link>
+
+              {user ? (
+                <>
+                  <Link
+                    href="/history"
+                    className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    History
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logout()
+                      setMobileOpen(false)
+                    }}
+                    className="px-4 py-3 rounded-lg text-gray-700 font-medium hover:bg-gray-100 text-left w-full"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginModalOpen(true)
+                    setMobileOpen(false)
+                  }}
+                  className="mt-2 mx-2 py-3 rounded-lg border-2 border-[var(--atlas-cyan)] text-[var(--atlas-navy)] font-bold text-center hover:bg-[var(--atlas-cyan)] hover:text-white transition-colors w-full"
+                >
+                  Sign In
+                </button>
+              )}
+            </nav>
+          </aside>
         </div>
       )}
 

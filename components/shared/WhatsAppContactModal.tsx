@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { X, MessageCircle } from "lucide-react"
 import { useUser } from "@/contexts/UserContext"
-import { usersAPI } from "@/lib/api"
 import type { CarListing } from "@/lib/api"
 
 function buildWhatsAppMessage(car: CarListing, userDetails: { name: string; phone: string; email: string }) {
@@ -38,25 +37,16 @@ export default function WhatsAppContactModal({
 }) {
   const { user } = useUser()
   const [name, setName] = useState(user?.name ?? "")
-  const [phone, setPhone] = useState(user?.phone ?? "")
-  const [email, setEmail] = useState(user?.email ?? "")
-  const [suggestionsOptIn, setSuggestionsOptIn] = useState(user?.suggestionsOptIn ?? false)
-  const [saving, setSaving] = useState(false)
 
   const dealerNumber = car.agency?.whatsappNumber
-  const message = buildWhatsAppMessage(car, { name, phone, email })
+  const message = buildWhatsAppMessage(car, {
+    name,
+    phone: user?.phone ?? "",
+    email: user?.email ?? "",
+  })
 
   const handleOpenWhatsApp = async () => {
     if (!dealerNumber) return
-    if (suggestionsOptIn) {
-      setSaving(true)
-      try {
-        await usersAPI.updatePreferences(true)
-      } catch {
-        // ignore
-      }
-      setSaving(false)
-    }
     const link = getWhatsAppLink(dealerNumber, message)
     window.open(link, "_blank", "noopener,noreferrer")
     onClose()
@@ -86,7 +76,7 @@ export default function WhatsAppContactModal({
           The message below will open in WhatsApp. You can edit your details before sending.
         </p>
 
-        <div className="space-y-4 mb-4">
+        <div className="space-y-4 mb-6">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Your name</label>
             <input
@@ -95,45 +85,10 @@ export default function WhatsAppContactModal({
               onChange={(e) => setName(e.target.value)}
               placeholder="Name"
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Your phone</label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Phone"
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm"
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Your email (optional)</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm"
-            />
-          </div>
         </div>
-
-        <div className="rounded-lg bg-muted/50 border border-border p-3 mb-4">
-          <p className="text-xs font-medium text-muted-foreground mb-2">Message preview</p>
-          <pre className="text-sm text-foreground whitespace-pre-wrap font-sans">{buildWhatsAppMessage(car, { name, phone, email })}</pre>
-        </div>
-
-        <label className="flex items-center gap-2 mb-6 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={suggestionsOptIn}
-            onChange={(e) => setSuggestionsOptIn(e.target.checked)}
-            className="rounded border-border text-primary focus:ring-ring"
-          />
-          <span className="text-sm text-foreground">Send me suggestions for similar cars in the future</span>
-        </label>
 
         <div className="flex gap-3">
           <button
@@ -146,7 +101,6 @@ export default function WhatsAppContactModal({
           <button
             type="button"
             onClick={handleOpenWhatsApp}
-            disabled={saving}
             className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 disabled:opacity-50"
           >
             Open WhatsApp

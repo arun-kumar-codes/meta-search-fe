@@ -113,6 +113,9 @@ export default function UserLoginModal({
                 className="w-full px-4 py-3 rounded-xl border border-border focus:ring-2 focus:ring-ring focus:border-ring bg-background text-foreground"
                 required
               />
+              <p className="mt-2 text-xs text-muted-foreground">
+                We hate spam too. Your number is only for OTP and dealer updates.
+              </p>
             </div>
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
