@@ -4,12 +4,11 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import { SlidersHorizontal, X, Loader2, Check } from "lucide-react"
 import { searchAPI, type SearchParams } from "@/lib/api"
 
-type SectionId = "basic" | "price" | "yearRange" | "mileage" | "location" | "specs"
+type SectionId = "price" | "yearRange" | "mileage" | "location" | "specs"
 
 const sections: { id: SectionId; label: string }[] = [
-  { id: "basic", label: "Brand & Model" },
-  { id: "price", label: "Price" },
   { id: "yearRange", label: "Year" },
+  { id: "price", label: "Price" },
   { id: "mileage", label: "KM Driven" },
   { id: "location", label: "Location" },
   { id: "specs", label: "Specs" },
@@ -33,7 +32,7 @@ export default function FiltersSidebar({
   onApply,
 }: FiltersSidebarProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [activeSection, setActiveSection] = useState<SectionId>("basic")
+  const [activeSection, setActiveSection] = useState<SectionId>("yearRange")
   const [draft, setDraft] = useState<SearchParams>(applied)
   const [activeField, setActiveField] = useState<string | null>(null)
 
@@ -159,26 +158,6 @@ export default function FiltersSidebar({
     )
 
     switch (activeSection) {
-      case "basic":
-        return (
-          <div className="space-y-4">
-            <Field label="Exact Year">
-              <input
-                ref={yearRef}
-                type="number"
-                inputMode="numeric"
-                placeholder="e.g. 2020"
-                className={controlClass}
-                value={draft.year || ""}
-                onFocus={() => setActiveField("year")}
-                onChange={(e) => {
-                  setActiveField("year")
-                  set("year", e.target.value)
-                }}
-              />
-            </Field>
-          </div>
-        )
       case "price":
         return (
           <div className="space-y-4">
@@ -387,7 +366,7 @@ export default function FiltersSidebar({
       {/* Filters trigger button */}
       <button
         type="button"
-        onClick={() => openDrawer("basic")}
+        onClick={() => openDrawer(applied.minPrice || applied.maxPrice ? "price" : "yearRange")}
         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-card border border-border hover:border-primary/50 hover:bg-muted font-semibold text-foreground transition-all"
       >
         <SlidersHorizontal size={18} />

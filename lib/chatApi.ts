@@ -24,6 +24,14 @@ export interface ChatResponse {
   reply: string
   listings?: CarListing[]
   listingIds?: string[]
+  chatState?: ChatState
+}
+
+export interface ChatState {
+  resolvedCity?: string
+  lastCityMemory?: string
+  citySource?: 'currentMessage' | 'chatMemory' | 'requestCity' | 'resetToRequest' | 'none'
+  stage?: 'search' | 'advisory'
 }
 
 export interface ChatHistoryMessage {
@@ -36,6 +44,7 @@ export interface SendMessageParams {
   conversationId?: string
   listingIds?: string[]
   city?: string
+  chatState?: ChatState
   /** Last N messages for context (e.g. up to 20). Sent to backend for LLM continuity. */
   history?: ChatHistoryMessage[]
 }
@@ -49,7 +58,7 @@ const MOCK_REPLY =
  * When you deploy your VM: set NEXT_PUBLIC_CHAT_API_URL to the VM chat URL and this will call it.
  */
 export async function sendChatMessage(params: SendMessageParams): Promise<ChatResponse> {
-  const { message, conversationId, listingIds, city, history } = params
+  const { message, conversationId, listingIds, city, chatState, history } = params
   const url = getChatEndpoint()
 
   try {
@@ -57,6 +66,7 @@ export async function sendChatMessage(params: SendMessageParams): Promise<ChatRe
     if (conversationId) body.conversationId = conversationId
     if (listingIds?.length) body.listingIds = listingIds
     if (city) body.city = city
+    if (chatState) body.chatState = chatState
     if (history?.length) body.history = history
 
     const res = await fetch(url, {
@@ -67,7 +77,9 @@ export async function sendChatMessage(params: SendMessageParams): Promise<ChatRe
 
     if (!res.ok) {
       const text = await res.text()
-      throw new Error(text || `Chat API error ${res.status}`)
+      const err: any = new Error(text || `Chat API error ${res.status}`)
+      err.status = res.status
+      throw err
     }
 
     const data = (await res.json()) as ChatResponse
@@ -81,8 +93,13 @@ export async function sendChatMessage(params: SendMessageParams): Promise<ChatRe
       reply: data.reply ?? '',
       listings: listings.length > 0 ? listings : undefined,
       listingIds: data.listingIds,
+      chatState: data.chatState,
     }
-  } catch (_err) {
+  } catch (err: any) {
+    // Quota/auth-related errors should be handled by the UI (prompt login).
+    if (err?.status === 429 || err?.status === 403) {
+      throw err
+    }
     return {
       reply: MOCK_REPLY,
       listings: undefined,

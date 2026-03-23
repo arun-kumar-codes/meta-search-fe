@@ -78,17 +78,14 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Location
     }
     const data = await response.json()
     const address = data.address || {}
-    const district =
-      address.county ||
-      address.state_district ||
-      address.city ||
-      address.town ||
-      address.village ||
-      address.municipality ||
-      ''
-    const rawCity = district.trim() || 'Unknown'
+    const rawCity =
+      String(address.city || address.town || address.municipality || address.village || address.county || address.state_district || '')
+        .trim()
+    if (!rawCity) {
+      throw new Error('Reverse geocoding could not determine a city')
+    }
     const city = rawCity.slice(0, MAX_CITY_LENGTH)
-    const state = (address.state || address.region || '').trim() || undefined
+    const state = String(address.state || address.region || '').trim() || undefined
     const country = (address.country || '').trim() || undefined
     return {
       city,
@@ -111,6 +108,9 @@ export async function getLocationFromIP(): Promise<LocationData> {
     }
     const data = await response.json()
     const rawCity = (data.city || 'Unknown').trim()
+    if (!rawCity || rawCity === 'Unknown') {
+      throw new Error('IP geolocation could not determine a city')
+    }
     const city = rawCity.slice(0, MAX_CITY_LENGTH)
     return {
       city,
@@ -121,11 +121,7 @@ export async function getLocationFromIP(): Promise<LocationData> {
     }
   } catch (error) {
     console.error('IP geolocation error:', error)
-    return {
-      city: 'Delhi',
-      state: 'Delhi',
-      country: 'India',
-    }
+    throw error
   }
 }
 
@@ -146,15 +142,26 @@ export async function detectLocation(): Promise<LocationData> {
       const location = await getLocationFromIP()
       cacheLocation(location)
       return location
-    } catch (ipError) {
-      console.error('All location detection methods failed:', ipError)
-      const defaultLocation: LocationData = {
-        city: 'Delhi',
-        state: 'Delhi',
-        country: 'India',
-      }
-      cacheLocation(defaultLocation)
-      return defaultLocation
     }
+    catch (ipError) {
+      console.error('All location detection methods failed:', ipError)
+      // Let the caller show a manual picker; do not silently cache a default city.
+      throw ipError
+    }
+  }
+}
+
+/**
+ * Detect location without reading/writing cache.
+ * Used to prefill the mandatory city picker UX without auto-committing a city.
+ */
+export async function detectLocationFresh(): Promise<LocationData> {
+  try {
+    const position = await getBrowserLocation()
+    const { latitude, longitude } = position.coords
+    return await reverseGeocode(latitude, longitude)
+  } catch (browserError) {
+    console.log('Browser geolocation failed, trying IP fallback:', browserError)
+    return await getLocationFromIP()
   }
 }

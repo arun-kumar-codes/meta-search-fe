@@ -15,6 +15,7 @@ export const endpoints = {
   userWishlist: '/users/me/wishlist',
   userWishlistCheck: (listingId: string) => `/users/me/wishlist/${listingId}/check`,
   userPreferences: '/users/me/preferences',
+  whatsappLead: '/click/whatsapp-lead',
 }
 
 export default endpoints

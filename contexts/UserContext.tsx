@@ -45,17 +45,40 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem(USER_TOKEN_KEY) : null
     const stored = typeof window !== "undefined" ? localStorage.getItem(USER_PROFILE_KEY) : null
-    if (token && stored) {
+
+    // No token => definitely logged out.
+    if (!token) {
+      setUser(null)
+      setIsLoading(false)
+      return
+    }
+
+    let didSetFromCache = false
+    if (stored) {
       try {
-        setUser(JSON.parse(stored))
+        const parsed = JSON.parse(stored) as UserProfile
+        setUser(parsed)
+        didSetFromCache = true
       } catch {
+        didSetFromCache = false
         setUser(null)
       }
-    } else {
-      setUser(null)
     }
-    setIsLoading(false)
-  }, [])
+
+    // If we only have a token but no cached profile (or cache parse failed),
+    // refresh from backend so the UI doesn't behave like a guest.
+    const refresh = async () => {
+      if (!didSetFromCache) {
+        await refreshProfile()
+      }
+      setIsLoading(false)
+    }
+
+    refresh().catch(() => {
+      setUser(null)
+      setIsLoading(false)
+    })
+  }, [refreshProfile])
 
   const sendOtp = useCallback(async (phone: string) => {
     try {

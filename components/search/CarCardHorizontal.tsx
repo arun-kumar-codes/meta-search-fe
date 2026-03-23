@@ -11,11 +11,12 @@ interface CarCardHorizontalProps {
   car: CarListing
   inWishlist?: boolean
   onWishlistClick?: () => void
-  returnCity?: string
+  searchQueryString?: string
 }
 
-export default function CarCardHorizontal({ car, inWishlist, onWishlistClick, returnCity }: CarCardHorizontalProps) {
-  const detailHref = `/search/${car.id}${returnCity ? `?from_city=${encodeURIComponent(returnCity)}` : ""}`
+export default function CarCardHorizontal({ car, inWishlist, onWishlistClick, searchQueryString }: CarCardHorizontalProps) {
+  const qs = searchQueryString?.trim()
+  const detailHref = `/search/${car.id}${qs ? `?${qs}` : ""}`
   const [imageError, setImageError] = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [whatsappOpen, setWhatsappOpen] = useState(false)

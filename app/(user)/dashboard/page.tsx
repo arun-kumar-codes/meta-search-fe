@@ -17,9 +17,10 @@ export default function UserDashboard() {
     totalBrands: 0,
   })
 
-  const city = location?.city || "Delhi"
+  const city = location?.city
 
   useEffect(() => {
+    if (!city) return
     loadDashboardData()
   }, [city])
 

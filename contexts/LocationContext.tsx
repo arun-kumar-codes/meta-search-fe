@@ -1,8 +1,10 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react"
-import { detectLocation, LocationData, cacheLocation, getCachedLocation } from "@/lib/location"
-import { MapPin, Loader2, X } from "lucide-react"
+import { detectLocationFresh, LocationData, cacheLocation, getCachedLocation } from "@/lib/location"
+import { MapPin, Loader2 } from "lucide-react"
+import { searchAPI } from "@/lib/api"
+import { usePathname, useSearchParams } from "next/navigation"
 
 interface LocationContextType {
   location: LocationData | null
@@ -27,86 +29,136 @@ interface LocationProviderProps {
 }
 
 export function LocationProvider({ children }: LocationProviderProps) {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [location, setLocation] = useState<LocationData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
-  const [hasRequested, setHasRequested] = useState(false)
+
+  // City picker state (manual selection)
+  const [cities, setCities] = useState<string[]>([])
+  const [citiesLoading, setCitiesLoading] = useState(false)
+  const [citiesError, setCitiesError] = useState<string | null>(null)
+  const [selectedCity, setSelectedCity] = useState<string>("")
+  const [autoDetected, setAutoDetected] = useState<LocationData | null>(null)
+  const [autoDetecting, setAutoDetecting] = useState(false)
+  const [autoDetectAttempted, setAutoDetectAttempted] = useState(false)
+
+  const getUrlCity = () => {
+    const raw = searchParams.get("city")
+    const city = raw ? raw.trim() : ""
+    return city || null
+  }
+
+  const syncCityToUrl = (city: string) => {
+    if (typeof window === "undefined") return
+    const nextCity = city.trim()
+    if (!nextCity) return
+    const params = new URLSearchParams(window.location.search)
+    params.set("city", nextCity)
+    const query = params.toString()
+    const nextUrl = `${pathname}${query ? `?${query}` : ""}`
+    window.history.replaceState({}, "", nextUrl)
+  }
 
   const requestLocation = async () => {
-    setLoading(true)
+    setAutoDetecting(true)
     setError(null)
-    setHasRequested(true)
-    
     try {
-      const detected = await detectLocation()
-      setLocation(detected)
-      cacheLocation(detected)
+      const detected = await detectLocationFresh()
+      setAutoDetected(detected)
+      setSelectedCity(detected.city)
     } catch (err: any) {
-      setError(err.message || "Failed to detect location")
-      // Set default location on error
-      const defaultLocation: LocationData = {
-        city: 'Delhi',
-        state: 'Delhi',
-        country: 'India',
-      }
-      setLocation(defaultLocation)
-      cacheLocation(defaultLocation)
+      // Manual picker will remain visible.
+      setError(err?.message || "Failed to detect location. Please select a city.")
+      setAutoDetected(null)
     } finally {
-      setLoading(false)
-      setShowPrompt(false)
+      setAutoDetecting(false)
     }
   }
 
   const updateLocation = (newLocation: LocationData) => {
     setLocation(newLocation)
     cacheLocation(newLocation)
+    if (newLocation.city?.trim()) {
+      syncCityToUrl(newLocation.city)
+    }
   }
 
   useEffect(() => {
-    // Check if location was previously denied or if we should show prompt
+    const urlCity = getUrlCity()
+    if (urlCity) {
+      const fromUrl: LocationData = {
+        city: urlCity,
+        state: location?.state,
+        country: location?.country,
+      }
+      setLocation(fromUrl)
+      cacheLocation(fromUrl)
+      setSelectedCity(urlCity)
+      setShowPrompt(false)
+      setLoading(false)
+      return
+    }
+
+    if (location) {
+      setLoading(false)
+      return
+    }
+
     const cached = getCachedLocation()
     if (cached) {
       setLocation(cached)
+      setSelectedCity(cached.city)
+      syncCityToUrl(cached.city)
       setLoading(false)
       return
     }
 
-    // Check if user previously denied location
-    const locationDenied = localStorage.getItem('location-denied')
-    if (locationDenied === 'true') {
-      // Use default location
-      const defaultLocation: LocationData = {
-        city: 'Delhi',
-        state: 'Delhi',
-        country: 'India',
-      }
-      setLocation(defaultLocation)
-      setLoading(false)
-      return
-    }
-
-    // Show prompt on first visit
+    // No cached location: enforce mandatory selection.
     setShowPrompt(true)
     setLoading(false)
-  }, [])
+  }, [pathname, searchParams]) // URL city is the canonical source when present.
 
-  const handleAllow = () => {
-    requestLocation()
-  }
+  // Prefill with detected location but still require user confirmation (like marketplace city pickers).
+  useEffect(() => {
+    if (!showPrompt) return
+    if (autoDetectAttempted) return
+    setAutoDetectAttempted(true)
+    requestLocation().catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showPrompt, autoDetectAttempted])
 
-  const handleDeny = () => {
-    localStorage.setItem('location-denied', 'true')
-    const defaultLocation: LocationData = {
-      city: 'Delhi',
-      state: 'Delhi',
-      country: 'India',
+  useEffect(() => {
+    if (!showPrompt) return
+    // Load city options for the manual picker.
+    if (cities.length > 0 || citiesLoading) return
+
+    let cancelled = false
+    setCitiesLoading(true)
+    setCitiesError(null)
+
+    searchAPI
+      .getCities()
+      .then((list) => {
+        if (cancelled) return
+        const uniq = Array.from(new Set((Array.isArray(list) ? list : []).filter(Boolean)))
+        setCities(uniq)
+      })
+      .catch((e: any) => {
+        if (cancelled) return
+        setCitiesError(e?.response?.data?.message || e?.message || "Failed to load city list.")
+      })
+      .finally(() => {
+        if (cancelled) return
+        setCitiesLoading(false)
+      })
+
+    return () => {
+      cancelled = true
     }
-    setLocation(defaultLocation)
-    cacheLocation(defaultLocation)
-    setShowPrompt(false)
-    setLoading(false)
-  }
+  }, [showPrompt, cities.length, citiesLoading])
 
   return (
     <LocationContext.Provider
@@ -118,59 +170,87 @@ export function LocationProvider({ children }: LocationProviderProps) {
         updateLocation,
       }}
     >
-      {children}
+      {/* Block the app behind a mandatory city picker until location is selected. */}
+      {showPrompt ? null : children}
       
       {/* Location Permission Prompt */}
       {showPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
-          <div className="bg-card rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 animate-scale-in border border-border">
+          <div className="bg-card rounded-2xl shadow-2xl max-w-lg w-full mx-4 p-6 animate-scale-in border border-border">
             <div className="flex items-start gap-4 mb-4">
               <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <MapPin size={24} className="text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-bold text-foreground mb-2">
-                  Enable Location Access
-                </h3>
+                <h3 className="text-xl font-bold text-foreground mb-2">Select your city</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  We need your location to show you cars available in your area. 
-                  Your location data is only used to filter search results and is never shared.
+                  Choose a city to show matching listings. You can change this later.
                 </p>
               </div>
-              <button
-                onClick={handleDeny}
-                className="flex-shrink-0 p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Close"
-              >
-                <X size={18} />
-              </button>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <button
-                onClick={handleDeny}
-                className="flex-1 px-4 py-3 rounded-xl border-2 border-border hover:bg-muted font-semibold text-foreground transition-all"
-              >
-                Skip for Now
-              </button>
-              <button
-                onClick={handleAllow}
-                disabled={loading}
-                className="flex-1 px-4 py-3 rounded-xl bg-primary hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-primary-foreground transition-all shadow-md flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    <span>Detecting...</span>
-                  </>
-                ) : (
-                  <span>Allow Location</span>
-                )}
-              </button>
+            {error && <div className="mb-3 text-sm text-red-600">{error}</div>}
+
+            <div className="space-y-4 mt-3">
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  City
+                </label>
+                <input
+                  value={selectedCity}
+                  onChange={(e) => {
+                    setSelectedCity(e.target.value)
+                    setAutoDetected(null)
+                  }}
+                  list="city-options"
+                  placeholder="e.g. Delhi, Mumbai, Pune"
+                  className="w-full px-4 py-3 rounded-xl border border-border focus:ring-2 focus:ring-ring/20 focus:border-ring bg-background text-foreground"
+                />
+                <datalist id="city-options">
+                  {citiesLoading ? (
+                    <option value="" />
+                  ) : (
+                    cities.map((c) => <option key={c} value={c} />)
+                  )}
+                </datalist>
+                {citiesError && <p className="mt-1 text-xs text-red-600">{citiesError}</p>}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  onClick={() => requestLocation()}
+                  disabled={autoDetecting}
+                  className="flex-1 px-4 py-3 rounded-xl bg-primary hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-primary-foreground transition-all shadow-md flex items-center justify-center gap-2"
+                >
+                  {autoDetecting ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      <span>Detecting...</span>
+                    </>
+                  ) : (
+                    <span>Detect my location</span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const city = selectedCity.trim()
+                    if (!city) return
+                    updateLocation(autoDetected ? autoDetected : { city })
+                    setShowPrompt(false)
+                  }}
+                  disabled={!selectedCity.trim()}
+                  className="flex-1 px-4 py-3 rounded-xl border-2 border-border hover:bg-muted disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-foreground transition-all"
+                >
+                  Continue
+                </button>
+              </div>
             </div>
-            
+
             <p className="text-xs text-muted-foreground mt-4 text-center">
-              You can change this later in your browser settings
+              Your selected city is used to filter listings across the app.
             </p>
           </div>
         </div>

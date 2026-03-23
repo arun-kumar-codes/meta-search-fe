@@ -37,9 +37,26 @@ function CarDetailsContent() {
   const { location } = useLocation()
   const [loginModalOpen, setLoginModalOpen] = useState(false)
   const searchBackUrl = (() => {
-    const fromCity = searchParams.get("from_city")
-    const city = fromCity || location?.city || getCachedLocation()?.city || "Delhi"
-    return `/search?city=${encodeURIComponent(city)}`
+    // Preserve the full search query params so "Back to Search" restores filters + pagination.
+    // Links from the Search page include all current query params (not only city).
+    const raw = new URLSearchParams(searchParams.toString())
+
+    const fromCity = raw.get("from_city")
+    let city = raw.get("city") || fromCity || location?.city || getCachedLocation()?.city
+    if (!city) return "/search"
+
+    // Ensure the query always has `city` for backend/city gating.
+    if (!raw.get("city") && city) raw.set("city", city)
+
+    // Keep pagination stable.
+    if (!raw.get("page")) raw.set("page", "1")
+    if (!raw.get("limit")) raw.set("limit", "50")
+
+    // Backwards compatibility: older links used `from_city` only.
+    raw.delete("from_city")
+
+    const qs = raw.toString()
+    return qs ? `/search?${qs}` : "/search"
   })()
   const [car, setCar] = useState<CarListing | null>(null)
   const [loading, setLoading] = useState(true)

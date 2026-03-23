@@ -46,6 +46,7 @@ function SearchResultsContent() {
     const fuelType = searchParams.get("fuelType")
     const transmission = searchParams.get("transmission")
     const bodyType = searchParams.get("bodyType")
+    const state = searchParams.get("state")
     const sortBy = searchParams.get("sortBy") as SearchParams["sortBy"] | null
     
     if (brand) params.brand = brand
@@ -57,7 +58,10 @@ function SearchResultsContent() {
     if (maxPrice) params.maxPrice = maxPrice
     if (minMileage) params.minMileage = minMileage
     if (maxMileage) params.maxMileage = maxMileage
-    params.city = city || location?.city || "Delhi"
+    params.city = city || location?.city
+    // Do not auto-inject location.state.
+    // State should apply only when explicitly present in the URL/filter.
+    if (state) params.state = state
     if (fuelType) params.fuelType = fuelType
     if (transmission) params.transmission = transmission
     if (bodyType) params.bodyType = bodyType
@@ -113,6 +117,10 @@ function SearchResultsContent() {
 
   useEffect(() => {
     if (locationLoading) return
+
+    // If no city is selected yet, don't query the backend.
+    // (LocationContext enforces a city picker on first load.)
+    if (!location?.city) return
     
     const params = getSearchParams()
     if (!params.page) params.page = "1"
@@ -123,7 +131,7 @@ function SearchResultsContent() {
       if (e.persisted) {
         const currentParams = getSearchParams()
         if (!currentParams.page) currentParams.page = "1"
-        if (!currentParams.limit) currentParams.limit = "10"
+        if (!currentParams.limit) currentParams.limit = "50"
         performSearch(currentParams)
       }
     }
@@ -231,7 +239,7 @@ function SearchResultsContent() {
                   <CarCardHorizontal
                     key={car.id}
                     car={car}
-                    returnCity={getSearchParams().city}
+                    searchQueryString={paramsString}
                     inWishlist={user ? wishlistIds.has(car.id) : undefined}
                     onWishlistClick={user ? async () => {
                       try {

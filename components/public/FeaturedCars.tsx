@@ -23,12 +23,13 @@ export default function FeaturedCars() {
   const [listings, setListings] = useState<CarListing[]>([])
   const [loading, setLoading] = useState(true)
   const hasLoadedOnce = useRef(false)
-  const city = location?.city || "Delhi"
+  const city = location?.city
 
   useEffect(() => {
     let cancelled = false
     if (!hasLoadedOnce.current) setLoading(true)
     const run = async () => {
+      if (!city) return
       try {
         const response = await searchAPI.search({
           page: "1",

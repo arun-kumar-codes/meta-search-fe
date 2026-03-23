@@ -16,12 +16,13 @@ export default function MostPopularCars() {
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set())
   const hasLoadedOnce = useRef(false)
 
-  const city = location?.city || "Delhi"
+  const city = location?.city
 
   useEffect(() => {
     let cancelled = false
     if (!hasLoadedOnce.current) setLoading(true)
     const run = async () => {
+      if (!city) return
       try {
         const response = await searchAPI.search({
           page: "1",

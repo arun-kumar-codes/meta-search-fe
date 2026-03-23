@@ -26,7 +26,8 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
     minMileage: "",
     maxMileage: "",
     city: location?.city || "",
-    state: location?.state || "",
+    // State filter should be explicit, not automatically inherited from location.
+    state: "",
     fuelType: "",
     transmission: "",
     bodyType: "",
@@ -43,7 +44,7 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
       case "year_asc": return "Year ↑"
       case "mileage_asc": return "KM Driven ↑"
       case "mileage_desc": return "KM Driven ↓"
-      default: return "Relevance"
+      default: return "Default"
     }
   }
 
@@ -62,8 +63,11 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
     set("minMileage", data.minMileage)
     set("maxMileage", data.maxMileage)
     
-    const city = data.city || location?.city || "Delhi"
-    params.set("city", city)
+    const city = data.city || location?.city
+    if (city) params.set("city", city)
+
+    const state = data.state
+    if (state) params.set("state", state)
     
     set("fuelType", data.fuelType)
     set("transmission", data.transmission)
@@ -104,7 +108,7 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
       ...defaultFormData,
       ...initialValues,
       city: initialValues?.city || location?.city || defaultFormData.city,
-      state: initialValues?.state || location?.state || defaultFormData.state,
+      state: initialValues?.state || defaultFormData.state,
       page: initialValues?.page || "1",
       limit: initialValues?.limit || "50",
     }
@@ -365,7 +369,7 @@ export default function SearchFormCar({ initialValues, variant = "hero" }: Searc
                 router.push(`/search?${qs}`)
               }}
             >
-              <option value="">Relevance</option>
+              <option value="">Default</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
               <option value="year_desc">Year: Newest</option>

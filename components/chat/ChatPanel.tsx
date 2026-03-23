@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { sendChatMessage, type ChatResponse } from "@/lib/chatApi"
+import { sendChatMessage, type ChatResponse, type ChatState } from "@/lib/chatApi"
 import type { ChatMessageData } from "./ChatMessage"
 import ChatMessage from "./ChatMessage"
 import ChatInput from "./ChatInput"
@@ -20,7 +20,7 @@ const WELCOME_MESSAGE: ChatMessageData = {
     "Hi! 👋 I'm here to help you find the right car on this app. Ask in plain language, for example:\n\n" +
     "• **Show me Swift under 5 lakh in Mumbai**\n" +
     "• **Best diesel SUVs under 15 lakh**\n" +
-    "• **Maruti Baleno in Delhi**\n\n" +
+    "• **Maruti Baleno in your city**\n\n" +
     "I'll suggest matching cars, and you can tap any option to see full details. Your search uses your current location—you can change it anytime in the app.",
 };
 
@@ -40,7 +40,38 @@ interface ChatPanelProps {
 export default function ChatPanel({ className, city: cityProp, contextListingIds, popupMode, inlineMode }: ChatPanelProps) {
   const { location } = useLocation()
   const { user } = useUser()
-  const city = cityProp ?? location?.city ?? "Delhi"
+  const city = cityProp ?? location?.city
+  const [conversationId] = useState<string>(() => {
+    const key = "atlas_chat_conversation_id"
+    if (typeof window === "undefined") return ""
+    const existing = window.sessionStorage.getItem(key)
+    if (existing) return existing
+    const id = (crypto as any)?.randomUUID?.() ?? `chat_${Date.now()}_${Math.random().toString(16).slice(2)}`
+    window.sessionStorage.setItem(key, id)
+    return id
+  })
+
+  const chatStateKey = `atlas_chat_state_${conversationId}`
+  const [chatState, setChatState] = useState<ChatState | undefined>(() => {
+    if (typeof window === "undefined") return undefined
+    const raw = window.sessionStorage.getItem(chatStateKey)
+    if (!raw) return undefined
+    try {
+      return JSON.parse(raw) as ChatState
+    } catch {
+      return undefined
+    }
+  })
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    if (!chatState?.lastCityMemory) {
+      window.sessionStorage.removeItem(chatStateKey)
+      return
+    }
+    window.sessionStorage.setItem(chatStateKey, JSON.stringify(chatState))
+  }, [chatState, chatStateKey])
+
   const [messages, setMessages] = useState<ChatMessageData[]>([WELCOME_MESSAGE])
   const [sending, setSending] = useState(false)
   const [loginModalOpen, setLoginModalOpen] = useState(false)
@@ -75,16 +106,29 @@ export default function ChatPanel({ className, city: cityProp, contextListingIds
     try {
       response = await sendChatMessage({
         message: text,
+        conversationId: conversationId || undefined,
         city: city ?? undefined,
         listingIds: contextListingIds?.length ? contextListingIds : undefined,
         history: history.length > 0 ? history : undefined,
+        chatState,
       })
-    } catch {
-      response = {
-        reply: "Something went wrong. Please try again or use manual search below.",
+    } catch (err: any) {
+      const status = err?.status
+      if (status === 429 || status === 403) {
+        setLoginModalOpen(true)
+        response = {
+          reply: `You've used your ${GUEST_MESSAGE_LIMIT} free messages. Log in to keep chatting.`,
+        }
+      } else {
+        response = {
+          reply: "Something went wrong. Please try again or use manual search below.",
+        }
       }
     }
 
+    if (response?.chatState?.lastCityMemory) {
+      setChatState(response.chatState)
+    }
     setSending(false)
     const assistantMsg: ChatMessageData = {
       role: "assistant",
@@ -126,7 +170,7 @@ export default function ChatPanel({ className, city: cityProp, contextListingIds
             </span>
           </div>
           <Link
-            href="/search"
+            href={city ? `/search?city=${encodeURIComponent(city)}` : "/search"}
             className="relative shrink-0 inline-flex items-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium text-white/90 hover:text-white hover:bg-white/10 transition-colors"
             aria-label="Go to search page"
           >

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { X, MessageCircle } from "lucide-react"
 import { useUser } from "@/contexts/UserContext"
 import type { CarListing } from "@/lib/api"
+import { leadsAPI } from "@/lib/api"
 
 function buildWhatsAppMessage(car: CarListing, userDetails: { name: string; phone: string; email: string }) {
   const lines = [
@@ -47,6 +48,13 @@ export default function WhatsAppContactModal({
 
   const handleOpenWhatsApp = async () => {
     if (!dealerNumber) return
+    // Record a lead for billing (website clicks + WhatsApp initiations).
+    // Best-effort: don't block WhatsApp even if the API call fails.
+    try {
+      await leadsAPI.recordWhatsappLead(car.id, car.agency?.id)
+    } catch {
+      // ignore
+    }
     const link = getWhatsAppLink(dealerNumber, message)
     window.open(link, "_blank", "noopener,noreferrer")
     onClose()

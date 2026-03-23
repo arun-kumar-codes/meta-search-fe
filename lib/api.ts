@@ -116,7 +116,6 @@ export const searchAPI = {
     try {
       const cleanParams: Record<string, string> = {}
       Object.entries(params).forEach(([key, value]) => {
-        if (key === 'state') return
         if (value !== undefined && value !== null && value !== "") {
           cleanParams[key] = String(value)
         }
@@ -249,6 +248,13 @@ export const usersAPI = {
   getPreferences: async () => {
     const { data } = await api.get(endpoints.userPreferences)
     return data as UserProfile
+  },
+}
+
+export const leadsAPI = {
+  recordWhatsappLead: async (listingId: string, agencyId?: string) => {
+    const { data } = await api.post(endpoints.whatsappLead, { listingId, agencyId })
+    return data as { message?: string }
   },
 }
 
