@@ -104,10 +104,18 @@ export default function ChatPanel({ className, city: cityProp, contextListingIds
 
     let response: ChatResponse
     try {
+      const lower = text.toLowerCase()
+      const resetRequested =
+        /\buse my location\b|\buse my city\b|\buse website city\b|\bnear me\b|\bmy area\b|\baround here\b/.test(
+          lower,
+        )
+      const requestCityForTurn =
+        !chatState?.lastCityMemory || resetRequested ? city ?? undefined : undefined
+
       response = await sendChatMessage({
         message: text,
         conversationId: conversationId || undefined,
-        city: city ?? undefined,
+        city: requestCityForTurn,
         listingIds: contextListingIds?.length ? contextListingIds : undefined,
         history: history.length > 0 ? history : undefined,
         chatState,
@@ -126,8 +134,16 @@ export default function ChatPanel({ className, city: cityProp, contextListingIds
       }
     }
 
-    if (response?.chatState?.lastCityMemory) {
+    if (response?.chatState) {
       setChatState(response.chatState)
+      if (process.env.NODE_ENV !== "production") {
+        console.debug("[chat][clientState]", {
+          conversationId,
+          resolvedCity: response.chatState.resolvedCity,
+          citySource: response.chatState.citySource,
+          lastCityMemory: response.chatState.lastCityMemory,
+        })
+      }
     }
     setSending(false)
     const assistantMsg: ChatMessageData = {
